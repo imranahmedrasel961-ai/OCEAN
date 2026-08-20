@@ -1,184 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCEAN Gamer</title>
 
-  <title>OCEAN</title>
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+body{
+  background:#07111f;
+  color:white;
+}
 
-    body {
-      background: #f5f7fa;
-      color: #222;
-    }
+header{
+  padding:20px;
+  text-align:center;
+  background:#0d1b2e;
+  border-bottom:1px solid #263b55;
+}
 
-    header {
-      background: #0b132b;
-      color: white;
-      padding: 18px 7%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+.logo{
+  font-size:30px;
+  font-weight:bold;
+}
 
-    .logo {
-      font-size: 25px;
-      font-weight: bold;
-    }
+.logo span{
+  color:#00d9ff;
+}
 
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-left: 20px;
-    }
+nav{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  padding:15px;
+  background:#091525;
+}
 
-    .hero {
-      min-height: 75vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 40px 20px;
-      background: linear-gradient(135deg, #0b132b, #1c2541);
-      color: white;
-    }
+nav button{
+  border:0;
+  padding:10px 16px;
+  border-radius:20px;
+  background:#14263c;
+  color:white;
+  cursor:pointer;
+}
 
-    .hero h1 {
-      font-size: 50px;
-      margin-bottom: 15px;
-    }
+nav button:hover{
+  background:#00a8cc;
+}
 
-    .hero p {
-      font-size: 19px;
-      margin-bottom: 30px;
-      color: #dbe4ff;
-    }
+.hero{
+  text-align:center;
+  padding:45px 20px;
+}
 
-    .button {
-      display: inline-block;
-      background: #3a86ff;
-      color: white;
-      padding: 14px 28px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-    }
+.hero h1{
+  font-size:40px;
+  margin-bottom:12px;
+}
 
-    .section {
-      padding: 55px 7%;
-      text-align: center;
-    }
+.hero p{
+  color:#a9bdd2;
+}
 
-    .section h2 {
-      font-size: 32px;
-      margin-bottom: 30px;
-    }
+.games{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+}
 
-    .cards {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
+.card{
+  background:#0d1b2e;
+  border:1px solid #203851;
+  border-radius:18px;
+  padding:25px;
+  text-align:center;
+  transition:.2s;
+}
 
-    .card {
-      background: white;
-      width: 280px;
-      padding: 30px 20px;
-      border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-    }
+.card:hover{
+  transform:translateY(-5px);
+  border-color:#00d9ff;
+}
 
-    .card h3 {
-      margin-bottom: 12px;
-    }
+.icon{
+  font-size:50px;
+  margin-bottom:15px;
+}
 
-    footer {
-      background: #0b132b;
-      color: white;
-      text-align: center;
-      padding: 25px;
-    }
+.card h2{
+  margin-bottom:8px;
+}
 
-    @media (max-width: 600px) {
-      .hero h1 {
-        font-size: 38px;
-      }
+.card p{
+  color:#9eb3c8;
+  margin-bottom:18px;
+}
 
-      nav a {
-        margin-left: 8px;
-        font-size: 14px;
-      }
-    }
-  </style>
+.play{
+  display:inline-block;
+  padding:10px 22px;
+  background:#00b8dc;
+  color:white;
+  text-decoration:none;
+  border-radius:25px;
+  font-weight:bold;
+}
+
+footer{
+  text-align:center;
+  padding:30px;
+  margin-top:30px;
+  background:#091525;
+  color:#7f96ad;
+}
+</style>
 </head>
 
 <body>
 
-  <header>
-    <div class="logo">OCEAN</div>
+<header>
+  <div class="logo">OCEAN <span>GAMER</span></div>
+</header>
 
-    <nav>
-      <a href="#home">Home</a>
-      <a href="#about">About</a>
-      <a href="#services">Services</a>
-    </nav>
-  </header>
+<nav>
+  <button onclick="showAll()">All Games</button>
+  <button onclick="showCategory('sports')">⚽ Sports</button>
+  <button onclick="showCategory('card')">🃏 Cards</button>
+  <button onclick="showCategory('puzzle')">🧩 Puzzle</button>
+  <button onclick="showCategory('arcade')">🎮 Arcade</button>
+</nav>
 
-  <section class="hero" id="home">
-    <div>
-      <h1>Welcome to OCEAN</h1>
+<section class="hero">
+  <h1>Welcome to OCEAN Gamer</h1>
+  <p>Play fun browser games and discover new challenges.</p>
+</section>
 
-      <p>
-        A modern platform built for the future.
-      </p>
+<section class="games" id="games">
 
-      <a href="#about" class="button">Get Started</a>
-    </div>
-  </section>
+  <div class="card sports">
+    <div class="icon">⚽</div>
+    <h2>Football Challenge</h2>
+    <p>Test your football skills.</p>
+    <a class="play" href="#">PLAY</a>
+  </div>
 
-  <section class="section" id="about">
-    <h2>About OCEAN</h2>
+  <div class="card sports">
+    <div class="icon">🏀</div>
+    <h2>Basketball</h2>
+    <p>Score as many points as possible.</p>
+    <a class="play" href="#">PLAY</a>
+  </div>
 
-    <p>
-      OCEAN is a modern web platform designed to provide
-      simple, fast and user-friendly online services.
-    </p>
-  </section>
+  <div class="card card">
+    <div class="icon">🃏</div>
+    <h2>Card Challenge</h2>
+    <p>Classic card-style arcade challenge.</p>
+    <a class="play" href="#">PLAY</a>
+  </div>
 
-  <section class="section" id="services">
-    <h2>Our Services</h2>
+  <div class="card puzzle">
+    <div class="icon">🧩</div>
+    <h2>Puzzle Master</h2>
+    <p>Challenge your brain with puzzles.</p>
+    <a class="play" href="#">PLAY</a>
+  </div>
 
-    <div class="cards">
+  <div class="card puzzle">
+    <div class="icon">🔢</div>
+    <h2>Number Puzzle</h2>
+    <p>Find the correct number.</p>
+    <a class="play" href="#">PLAY</a>
+  </div>
 
-      <div class="card">
-        <h3>Fast</h3>
-        <p>Quick and simple user experience.</p>
-      </div>
+  <div class="card arcade">
+    <div class="icon">🎮</div>
+    <h2>Arcade Zone</h2>
+    <p>Fast and fun browser gaming.</p>
+    <a class="play" href="#">PLAY</a>
+  </div>
 
-      <div class="card">
-        <h3>Secure</h3>
-        <p>Designed with security and privacy in mind.</p>
-      </div>
+</section>
 
-      <div class="card">
-        <h3>Modern</h3>
-        <p>A clean and responsive design for all devices.</p>
-      </div>
+<footer>
+  © 2026 OCEAN Gamer — Fun & Safe Browser Games
+</footer>
 
-    </div>
-  </section>
+<script>
+function showAll(){
+  document.querySelectorAll(".card").forEach(c=>{
+    c.style.display="block";
+  });
+}
 
-  <footer>
-    <p>© 2026 OCEAN. All rights reserved.</p>
-  </footer>
+function showCategory(category){
+  document.querySelectorAll(".card").forEach(c=>{
+    if(c.classList.contains(category)){
+      c.style.display="block";
+    }else{
+      c.style.display="none";
+    }
+  });
+}
+</script>
 
 </body>
 </html>

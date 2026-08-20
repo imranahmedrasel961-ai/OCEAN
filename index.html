@@ -1,1 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>OCEAN Gaming Platform</title>
 
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:100%;
+  min-height:100%;
+  background:#050817;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+}
+body{padding-bottom:88px}
+
+.app{
+  width:100%;
+  max-width:760px;
+  margin:auto;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 85% 10%,rgba(0,174,255,.12),transparent 28%),
+    #050817;
+}
+
+/* HEADER */
+.header{
+  height:92px;
+  padding:20px 18px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.logo{
+  font-size:38px;
+  font-weight:900;
+  letter-spacing:2px;
+  background:linear-gradient(90deg,#00aaff,#32d7ff);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+.sub{
+  color:#8490aa;
+  font-size:13px;
+  letter-spacing:1px;
+  margin-top:-3px;
+}
+.balance{
+  border:1px solid #164987;
+  background:linear-gradient(135deg,#101d40,#081329);
+  border-radius:30px;
+  padding:12px 18px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  box-shadow:0 0 20px rgba(0,137,255,.12);
+}
+.coin{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(#ffe873,#e9a900);
+  color:#805b00;
+  font-weight:bold;
+}
+.balance span:last-child{
+  color:#ffd84d;
+  font-size:18px;
+  font-weight:bold;
+}
+
+/* HERO */
+.hero{
+  margin:14px 18px 18px;
+  min-height:385px;
+  border:1px solid #008fe5;
+  border-radius:28px;
+  overflow:hidden;
+  position:relative;
+  padding:35px 28px;
+  background:
+    radial-gradient(circle at 75% 45%,rgba(0,191,255,.45),transparent 35%),
+    linear-gradient(135deg,#092b50,#06223b 55%,#071b2d);
+  box-shadow:0 12px 35px rgba(0,132,255,.13);
+}
+.hero:after{
+  content:"";
+  position:absolute;
+  width:230px;height:230px;
+  right:-90px;bottom:-90px;
+  border-radius:50%;
+  background:rgba(0,192,255,.14);
+  filter:blur(5px);
+}
+.welcome{
+  color:#8ca8c8;
+  font-size:17px;
+  margin-bottom:8px;
+}
+.hero h1{
+  position:relative;
+  z-index:2;
+  font-size:46px;
+  line-height:1.08;
+  font-weight:900;
+  max-width:550px;
+}
+.hero p{
+  position:relative;
+  z-index:2;
+  margin-top:28px;
+  color:#b4c8df;
+  font-size:19px;
+  line-height:1.45;
+  max-width:520px;
+}
+.play{
+  position:relative;
+  z-index:3;
+  margin-top:30px;
+  border:0;
+  border-radius:18px;
+  padding:17px 30px;
+  color:white;
+  font-size:18px;
+  font-weight:800;
+  background:linear-gradient(100deg,#078fff,#21c6ed);
+  box-shadow:0 10px 25px rgba(0,157,255,.28);
+  cursor:pointer;
+}
+
+/* LIVE MESSAGE */
+.notice{
+  margin:0 18px 18px;
+  padding:17px 20px;
+  border:1px solid #1a315c;
+  border-radius:20px;
+  background:#0b1732;
+  color:#b7c6dc;
+  font-size:16px;
+}
+.notice b{color:white}
+
+/* CATEGORIES */
+.categories{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  padding:5px 18px 20px;
+  scrollbar-width:none;
+}
+.categories::-webkit-scrollbar{display:none}
+.cat{
+  flex:0 0 auto;
+  padding:13px 23px;
+  border:1px solid #203861;
+  background:#09132a;
+  border-radius:18px;
+  color:#aab8cd;
+  font-size:17px;
+  cursor:pointer;
+}
+.cat.active{
+  color:white;
+  background:linear-gradient(100deg,#078ef1,#14b9e9);
+  border-color:#19bfff;
+  box-shadow:0 8px 20px rgba(0,157,255,.2);
+}
+
+/* SECTION */
+.section{
+  padding:0 18px;
+}
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:5px 0 18px;
+}
+.section-head h2{font-size:28px}
+.section-head span{color:#8794ab;font-size:16px}
+
+/* GAMES */
+.games{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+}
+.game{
+  position:relative;
+  overflow:hidden;
+  border:1px solid #1c3b65;
+  border-radius:22px;
+  background:#0a1429;
+  box-shadow:0 8px 25px rgba(0,0,0,.25);
+  cursor:pointer;
+  transition:.2s;
+}
+.game:active{transform:scale(.97)}
+.game-art{
+  height:205px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.game-art:before{
+  content:"";
+  position:absolute;
+  width:170px;height:170px;
+  border-radius:50%;
+  background:rgba(255,255,255,.1);
+  filter:blur(2px);
+}
+.ocean{
+  background:radial-gradient(circle at 50% 30%,#31c9ff,#07528e 60%,#061a35);
+}
+.jackpot{
+  background:radial-gradient(circle at 50% 35%,#ffb018,#8e2807 62%,#331008);
+}
+.neon{
+  background:radial-gradient(circle at 50% 35%,#c832ff,#37136e 62%,#130921);
+}
+.royal{
+  background:radial-gradient(circle at 50% 35%,#45d7ad,#075d58 62%,#062f35);
+}
+.art-title{
+  position:relative;
+  z-index:2;
+  font-size:29px;
+  font-weight:900;
+  line-height:1.05;
+  text-shadow:0 3px 8px rgba(0,0,0,.55);
+}
+.wave{font-size:55px;margin-bottom:7px}
+.crown{font-size:55px;margin-bottom:7px}
+.card-icon{font-size:52px;margin-bottom:7px}
+
+.hot{
+  position:absolute;
+  top:12px;left:12px;
+  z-index:5;
+  background:#ff3044;
+  padding:7px 10px;
+  border-radius:9px;
+  font-weight:900;
+  font-size:13px;
+}
+.game-info{
+  padding:13px 14px 16px;
+}
+.game-info h3{font-size:17px}
+.game-info p{
+  color:#7f8da5;
+  font-size:13px;
+  margin-top:5px;
+}
+
+/* BOTTOM NAV */
+.bottom{
+  position:fixed;
+  z-index:100;
+  bottom:0;
+  left:0;
+  right:0;
+  height:78px;
+  background:rgba(5,11,27,.97);
+  border-top:1px solid #182944;
+  display:flex;
+  justify-content:center;
+}
+.nav{
+  width:100%;
+  max-width:760px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+}
+.nav button{
+  border:0;
+  background:none;
+  color:#77839a;
+  font-size:13px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  cursor:pointer;
+}
+.nav button.active{color:#19b9ff}
+.nav-icon{font-size:24px}
+
+/* MODAL */
+.modal{
+  display:none;
+  position:fixed;
+  z-index:200;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.modal-box{
+  width:100%;
+  max-width:420px;
+  background:#0a1429;
+  border:1px solid #1c67a5;
+  border-radius:25px;
+  padding:25px;
+  text-align:center;
+}
+.modal-box h2{font-size:27px;margin-bottom:10px}
+.modal-box p{color:#9aa9c0;line-height:1.5}
+.close{
+  margin-top:20px;
+  width:100%;
+  border:0;
+  border-radius:15px;
+  padding:14px;
+  background:#118fe5;
+  color:#fff;
+  font-weight:bold;
+  font-size:16px;
+}
+
+/* RESPONSIVE */
+@media(max-width:430px){
+  .logo{font-size:34px}
+  .balance{padding:10px 13px}
+  .balance span:last-child{font-size:16px}
+  .hero{min-height:370px;padding:32px 25px}
+  .hero h1{font-size:42px}
+  .game-art{height:180px}
+  .art-title{font-size:25px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header class="header">
+  <div>
+    <div class="logo">OCEAN</div>
+    <div class="sub">GAMING PLATFORM</div>
+  </div>
+
+  <div class="balance">
+    <div class="coin">●</div>
+    <span id="balance">125,000.00</span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="welcome">WELCOME TO OCEAN</div>
+  <h1>DIVE INTO<br>ENDLESS<br>ENTERTAINMENT</h1>
+  <p>Slots, live-style games, sports-style cards and more.</p>
+  <button class="play" onclick="openDemo('OCEAN Demo')">PLAY DEMO</button>
+</section>
+
+<div class="notice">
+  📡 Congratulations! <b>OCEAN789</b> just played <b>OCEAN Fortune</b>
+</div>
+
+<div class="categories">
+  <button class="cat active" onclick="filterGames('all',this)">All Games</button>
+  <button class="cat" onclick="filterGames('hot',this)">🔥 Hot</button>
+  <button class="cat" onclick="filterGames('new',this)">✨ New</button>
+  <button class="cat" onclick="filterGames('slot',this)">🎰 Slots</button>
+  <button class="cat" onclick="filterGames('card',this)">🃏 Cards</button>
+</div>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Popular Games</h2>
+    <span>OCEAN Originals</span>
+  </div>
+
+  <div class="games">
+
+    <div class="game" data-type="hot slot"
+         onclick="openDemo('OCEAN Fortune')">
+      <div class="game-art ocean">
+        <div class="hot">HOT</div>
+        <div>
+          <div class="wave">🌊</div>
+          <div class="art-title">OCEAN<br>FORTUNE</div>
+        </div>
+      </div>
+      <div class="game-info">
+        <h3>OCEAN Fortune</h3>
+        <p>Demo • Virtual Coins</p>
+      </div>
+    </div>
+
+    <div class="game" data-type="hot slot"
+         onclick="openDemo('Jackpot Gold')">
+      <div class="game-art jackpot">
+        <div class="hot">HOT</div>
+        <div>
+          <div class="crown">👑</div>
+          <div class="art-title">JACKPOT<br>GOLD</div>
+        </div>
+      </div>
+      <div class="game-info">
+        <h3>Jackpot Gold</h3>
+        <p>Demo • Virtual Coins</p>
+      </div>
+    </div>
+
+    <div class="game" data-type="new slot"
+         onclick="openDemo('Neon Spin')">
+      <div class="game-art neon">
+        <div>
+          <div class="card-icon">💎</div>
+          <div class="art-title">NEON<br>SPIN</div>
+        </div>
+      </div>
+      <div class="game-info">
+        <h3>Neon Spin</h3>
+        <p>New • Demo Game</p>
+      </div>
+    </div>
+
+    <div class="game" data-type="new card"
+         onclick="openDemo('Ocean Royal')">
+      <div class="game-art royal">
+        <div>
+          <div class="card-icon">🃏</div>
+          <div class="art-title">OCEAN<br>ROYAL</div>
+        </div>
+      </div>
+      <div class="game-info">
+        <h3>Ocean Royal</h3>
+        <p>New • Demo Game</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</div>
+
+<nav class="bottom">
+  <div class="nav">
+    <button class="active" onclick="navClick(this,'Home')">
+      <span class="nav-icon">⌂</span>
+      Home
+    </button>
+    <button onclick="navClick(this,'Games')">
+      <span class="nav-icon">🎮</span>
+      Games
+    </button>
+    <button onclick="navClick(this,'Deposit')">
+      <span class="nav-icon">＋</span>
+      Deposit
+    </button>
+    <button onclick="navClick(this,'Wallet')">
+      <span class="nav-icon">▣</span>
+      Wallet
+    </button>
+    <button onclick="navClick(this,'Profile')">
+      <span class="nav-icon">●</span>
+      Profile
+    </button>
+  </div>
+</nav>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h2 id="modalTitle">OCEAN</h2>
+    <p>Demo mode is ready. This version uses virtual coins only.</p>
+    <button class="close" onclick="closeDemo()">CLOSE</button>
+  </div>
+</div>
+
+<script>
+function openDemo(name){
+  document.getElementById("modalTitle").textContent=name;
+  document.getElementById("modal").style.display="flex";
+}
+
+function closeDemo(){
+  document.getElementById("modal").style.display="none";
+}
+
+function filterGames(type,btn){
+  document.querySelectorAll(".cat").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+
+  document.querySelectorAll(".game").forEach(game=>{
+    if(type==="all" || game.dataset.type.includes(type)){
+      game.style.display="block";
+    }else{
+      game.style.display="none";
+    }
+  });
+}
+
+function navClick(btn,name){
+  document.querySelectorAll(".nav button")
+    .forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+
+  if(name!=="Home"){
+    openDemo(name);
+  }
+}
+
+document.getElementById("modal").addEventListener("click",function(e){
+  if(e.target===this) closeDemo();
+});
+</script>
+
+</body>
+</html>

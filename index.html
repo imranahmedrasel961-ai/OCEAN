@@ -2,71 +2,1103 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="OCEAN Delivery Platform - Food delivery made simple.">
-<title>OCEAN Delivery</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="OCEAN Delivery Platform">
+<title>OCEAN Delivery Platform</title>
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family:Arial,Helvetica,sans-serif;
-  background:#f7f8fa;
-  color:#17202a;
+font-family:Arial,Helvetica,sans-serif;
+background:#f5f7f9;color:#17202a;
 }
-button,input{font:inherit}
+button,input,select{font:inherit}
 button{cursor:pointer;border:0}
+a{text-decoration:none;color:inherit}
+
+:root{
+--green:#087f5b;
+--dark:#063b2d;
+--orange:#ff7a00;
+--red:#e03131;
+--blue:#1971c2;
+--light:#eef7f3;
+--white:#fff;
+--border:#e7e9ec;
+}
 
 .header{
-  position:sticky;top:0;z-index:100;
-  background:#fff;border-bottom:1px solid #eee;
+position:sticky;top:0;z-index:100;
+background:#fff;border-bottom:1px solid var(--border);
 }
 .nav{
-  max-width:1200px;margin:auto;padding:15px 20px;
-  display:flex;align-items:center;justify-content:space-between;
-  gap:20px;
+max-width:1250px;margin:auto;padding:14px 20px;
+display:flex;align-items:center;justify-content:space-between;
+gap:15px;
 }
 .logo{
-  font-size:28px;font-weight:900;letter-spacing:2px;
-  color:#087f5b;
+font-size:27px;font-weight:900;letter-spacing:2px;
+color:var(--green);
 }
 .logo span{color:#17202a}
-.nav-links{display:flex;gap:22px;align-items:center}
-.nav-links a{
-  text-decoration:none;color:#333;font-weight:600;
+.nav-actions{display:flex;gap:8px;align-items:center}
+.nav-btn{
+padding:10px 14px;border-radius:9px;
+background:#f1f3f5;font-weight:bold;
 }
-.cart-btn,.login-btn{
-  padding:11px 17px;border-radius:10px;font-weight:bold;
+.nav-btn.green{background:var(--green);color:#fff}
+.cart-count{
+background:#ff7a00;color:#fff;
+padding:2px 7px;border-radius:20px;
+margin-left:4px;
 }
-.cart-btn{background:#087f5b;color:white}
-.login-btn{background:#eef7f3;color:#087f5b}
 
 .hero{
-  background:linear-gradient(135deg,#063b2d,#087f5b);
-  color:white;padding:70px 20px;
+background:linear-gradient(135deg,#063b2d,#087f5b);
+color:white;padding:65px 20px;
 }
 .hero-inner{
-  max-width:1200px;margin:auto;
-  display:grid;grid-template-columns:1.2fr .8fr;
-  gap:40px;align-items:center;
+max-width:1250px;margin:auto;
+display:grid;grid-template-columns:1.2fr .8fr;
+gap:40px;align-items:center;
 }
 .hero h1{
-  font-size:52px;line-height:1.08;margin-bottom:20px;
+font-size:52px;line-height:1.08;margin-bottom:18px;
 }
 .hero p{
-  font-size:19px;line-height:1.6;
-  color:#e4fff6;margin-bottom:28px;
+font-size:18px;line-height:1.6;
+color:#e6fff7;margin-bottom:25px;
 }
 .search{
-  background:white;padding:7px;border-radius:14px;
-  display:flex;max-width:650px;
+background:white;padding:6px;border-radius:14px;
+display:flex;max-width:650px;
 }
 .search input{
-  flex:1;border:0;outline:0;padding:15px;font-size:16px;
+flex:1;border:0;outline:0;padding:14px;
 }
 .search button{
-  background:#ff7a00;color:white;
-  padding:0 22px;border-radius:10px;font-weight:bold;
+background:var(--orange);color:#fff;
+padding:0 20px;border-radius:10px;font-weight:bold;
 }
 .hero-card{
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255
+background:rgba(255,255,255,.12);
+border:1px solid rgba(255,255,255,.2);
+padding:25px;border-radius:20px;
+}
+.hero-card h2{margin-bottom:12px}
+.hero-stat{
+display:flex;justify-content:space-between;
+padding:13px 0;border-bottom:1px solid rgba(255,255,255,.15);
+}
+
+.container{max-width:1250px;margin:auto;padding:35px 20px}
+.section-title{
+display:flex;justify-content:space-between;
+align-items:center;margin-bottom:20px;
+}
+.section-title h2{font-size:27px}
+
+.categories{
+display:grid;
+grid-template-columns:repeat(6,1fr);
+gap:12px;
+}
+.category{
+background:#fff;border:1px solid var(--border);
+padding:18px 10px;text-align:center;
+border-radius:14px;font-weight:bold;
+transition:.2s;
+}
+.category:hover{transform:translateY(-3px);box-shadow:0 8px 25px #0001}
+.category .icon{font-size:30px;margin-bottom:8px}
+
+.food-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:18px;
+}
+.food-card{
+background:#fff;border:1px solid var(--border);
+border-radius:16px;overflow:hidden;
+box-shadow:0 5px 18px #00000008;
+}
+.food-img{
+height:170px;
+display:flex;align-items:center;justify-content:center;
+font-size:65px;background:#eaf5ef;
+}
+.food-body{padding:16px}
+.food-body h3{margin-bottom:6px}
+.food-body p{font-size:13px;color:#6c757d;margin-bottom:10px}
+.price{font-size:19px;font-weight:900;color:var(--green)}
+.food-bottom{
+display:flex;justify-content:space-between;
+align-items:center;gap:8px;
+}
+.add{
+background:var(--green);color:#fff;
+padding:9px 13px;border-radius:8px;font-weight:bold;
+}
+
+.features{
+display:grid;grid-template-columns:repeat(3,1fr);
+gap:18px;
+}
+.feature{
+background:#fff;padding:25px;border-radius:15px;
+border:1px solid var(--border);
+}
+.feature-icon{font-size:34px;margin-bottom:12px}
+
+.footer{
+background:#10231d;color:#fff;margin-top:30px;
+padding:45px 20px;
+}
+.footer-inner{
+max-width:1250px;margin:auto;
+display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+gap:30px;
+}
+.footer h3{margin-bottom:14px}
+.footer p,.footer li{color:#b9c8c2;line-height:1.8}
+.footer ul{list-style:none}
+
+/* MODAL */
+.modal{
+display:none;position:fixed;inset:0;
+background:#0008;z-index:500;
+padding:20px;overflow:auto;
+}
+.modal-box{
+max-width:900px;margin:40px auto;
+background:#fff;border-radius:18px;
+padding:25px;position:relative;
+}
+.close{
+position:absolute;right:18px;top:15px;
+background:#f1f3f5;width:35px;height:35px;
+border-radius:50%;font-weight:bold;
+}
+.modal-title{margin-bottom:20px;padding-right:40px}
+
+/* ROLE DASHBOARD */
+.role-grid{
+display:grid;grid-template-columns:repeat(5,1fr);
+gap:12px;margin-bottom:25px;
+}
+.role-btn{
+padding:18px 10px;border-radius:12px;
+background:#f1f3f5;border:2px solid transparent;
+font-weight:bold;
+}
+.role-btn:hover,.role-btn.active{
+border-color:var(--green);
+background:var(--light);
+color:var(--green);
+}
+
+.dashboard{
+display:none;
+}
+.dashboard.active{display:block}
+
+.dash-head{
+background:linear-gradient(135deg,#063b2d,#087f5b);
+color:white;padding:25px;border-radius:15px;
+margin-bottom:20px;
+}
+.dash-grid{
+display:grid;grid-template-columns:repeat(4,1fr);
+gap:15px;margin-bottom:20px;
+}
+.stat{
+background:#fff;padding:20px;border-radius:13px;
+border:1px solid var(--border);
+}
+.stat small{color:#777}
+.stat h2{margin-top:7px}
+
+.panel{
+background:#fff;border:1px solid var(--border);
+border-radius:15px;padding:20px;margin-bottom:20px;
+}
+.panel h3{margin-bottom:15px}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{
+padding:13px;border-bottom:1px solid var(--border);
+text-align:left;white-space:nowrap;
+}
+th{background:#f8f9fa}
+
+.badge{
+display:inline-block;padding:5px 9px;
+border-radius:20px;font-size:12px;font-weight:bold;
+}
+.badge.green{background:#d3f9d8;color:#087f5b}
+.badge.orange{background:#fff3bf;color:#e67700}
+.badge.blue{background:#dbeafe;color:#1971c2}
+.badge.red{background:#ffe3e3;color:#c92a2a}
+
+.action{
+padding:8px 12px;border-radius:7px;
+background:var(--green);color:white;
+font-weight:bold;
+}
+.action.red{background:var(--red)}
+.action.blue{background:var(--blue)}
+
+.form-grid{
+display:grid;grid-template-columns:1fr 1fr;
+gap:15px;
+}
+.field label{
+display:block;font-weight:bold;margin-bottom:6px;
+}
+.field input,.field select{
+width:100%;padding:12px;
+border:1px solid #ddd;border-radius:9px;
+outline:none;
+}
+.full{grid-column:1/-1}
+
+.notice{
+padding:14px;border-radius:10px;
+background:#eef7f3;margin-bottom:15px;
+}
+
+/* CART */
+.cart-item{
+display:flex;justify-content:space-between;
+align-items:center;gap:15px;
+padding:15px 0;border-bottom:1px solid var(--border);
+}
+.qty button{
+width:28px;height:28px;border-radius:6px;
+background:#eee;font-weight:bold;
+}
+.qty span{padding:0 8px;font-weight:bold}
+.cart-total{
+display:flex;justify-content:space-between;
+font-size:21px;font-weight:900;
+padding-top:18px;
+}
+.checkout{
+width:100%;padding:14px;
+background:var(--green);color:white;
+border-radius:10px;font-weight:bold;
+margin-top:18px;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+.hero-inner{grid-template-columns:1fr}
+.hero h1{font-size:40px}
+.food-grid{grid-template-columns:repeat(2,1fr)}
+.categories{grid-template-columns:repeat(3,1fr)}
+.features{grid-template-columns:1fr}
+.footer-inner{grid-template-columns:1fr 1fr}
+.role-grid{grid-template-columns:repeat(3,1fr)}
+.dash-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:600px){
+.nav{padding:12px}
+.logo{font-size:23px}
+.hero{padding:45px 15px}
+.hero h1{font-size:34px}
+.container{padding:25px 15px}
+.food-grid{grid-template-columns:1fr}
+.categories{grid-template-columns:repeat(2,1fr)}
+.footer-inner{grid-template-columns:1fr}
+.role-grid{grid-template-columns:1fr 1fr}
+.dash-grid{grid-template-columns:1fr 1fr}
+.form-grid{grid-template-columns:1fr}
+.full{grid-column:auto}
+.nav-btn span.hide-mobile{display:none}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+<div class="nav">
+<div class="logo">OCEAN<span> DELIVERY</span></div>
+
+<div class="nav-actions">
+<button class="nav-btn" onclick="openRoles()">📱 Apps</button>
+<button class="nav-btn green" onclick="openCart()">
+🛒 Cart <span id="cartCount" class="cart-count">0</span>
+</button>
+</div>
+</div>
+</header>
+
+<!-- CUSTOMER HOME -->
+<section class="hero">
+<div class="hero-inner">
+<div>
+<h1>Food delivered to your door.</h1>
+<p>
+Order delicious food from local restaurants,
+track your rider and enjoy fast delivery with OCEAN.
+</p>
+
+<div class="search">
+<input id="searchInput" placeholder="Search food or restaurant..."
+onkeyup="searchFood()">
+<button onclick="searchFood()">Search</button>
+</div>
+</div>
+
+<div class="hero-card">
+<h2>🌊 OCEAN Delivery</h2>
+<div class="hero-stat">
+<span>Restaurants</span><b>100+</b>
+</div>
+<div class="hero-stat">
+<span>Food Partners</span><b>500+</b>
+</div>
+<div class="hero-stat">
+<span>Delivery Riders</span><b>200+</b>
+</div>
+<div class="hero-stat">
+<span>Fast Delivery</span><b>30–45 min</b>
+</div>
+</div>
+</div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="container">
+<div class="section-title">
+<h2>Browse Categories</h2>
+</div>
+
+<div class="categories">
+<div class="category" onclick="filterFood('all')">
+<div class="icon">🍽️</div>All
+</div>
+<div class="category" onclick="filterFood('momo')">
+<div class="icon">🥟</div>Momo
+</div>
+<div class="category" onclick="filterFood('pizza')">
+<div class="icon">🍕</div>Pizza
+</div>
+<div class="category" onclick="filterFood('burger')">
+<div class="icon">🍔</div>Burger
+</div>
+<div class="category" onclick="filterFood('chicken')">
+<div class="icon">🍗</div>Chicken
+</div>
+<div class="category" onclick="filterFood('drinks')">
+<div class="icon">🥤</div>Drinks
+</div>
+</div>
+</section>
+
+<!-- FOOD -->
+<section class="container">
+<div class="section-title">
+<h2>Popular Food</h2>
+<button class="nav-btn" onclick="filterFood('all')">View All</button>
+</div>
+
+<div id="foodGrid" class="food-grid">
+
+<div class="food-card" data-cat="momo" data-name="Chicken Momo">
+<div class="food-img">🥟</div>
+<div class="food-body">
+<h3>Chicken Momo</h3>
+<p>Steamed chicken momo with special sauce</p>
+<div class="food-bottom">
+<span class="price">¥680</span>
+<button class="add" onclick="addCart('Chicken Momo',680)">+ Add</button>
+</div>
+</div>
+</div>
+
+<div class="food-card" data-cat="pizza" data-name="Cheese Pizza">
+<div class="food-img">🍕</div>
+<div class="food-body">
+<h3>Cheese Pizza</h3>
+<p>Fresh cheese pizza with special toppings</p>
+<div class="food-bottom">
+<span class="price">¥1,180</span>
+<button class="add" onclick="addCart('Cheese Pizza',1180)">+ Add</button>
+</div>
+</div>
+</div>
+
+<div class="food-card" data-cat="burger" data-name="Beef Burger">
+<div class="food-img">🍔</div>
+<div class="food-body">
+<h3>Beef Burger</h3>
+<p>Juicy beef burger with fresh vegetables</p>
+<div class="food-bottom">
+<span class="price">¥850</span>
+<button class="add" onclick="addCart('Beef Burger',850)">+ Add</button>
+</div>
+</div>
+</div>
+
+<div class="food-card" data-cat="chicken" data-name="Fried Chicken">
+<div class="food-img">🍗</div>
+<div class="food-body">
+<h3>Fried Chicken</h3>
+<p>Crispy fried chicken with special seasoning</p>
+<div class="food-bottom">
+<span class="price">¥780</span>
+<button class="add" onclick="addCart('Fried Chicken',780)">+ Add</button>
+</div>
+</div>
+</div>
+
+<div class="food-card" data-cat="momo" data-name="Veg Momo">
+<div class="food-img">🥟</div>
+<div class="food-body">
+<h3>Veg Momo</h3>
+<p>Fresh vegetable steamed momo</p>
+<div class="food-bottom">
+<span class="price">¥650</span>
+<button class="add" onclick="addCart('Veg Momo',650)">+ Add</button>
+</div>
+</div>
+</div>
+
+<div class="food-card" data-cat="chicken" data-name="Chicken Chowmein">
+<div class="food-img">🍜</div>
+<div class="food-body">
+<h3>Chicken Chowmein</h3>
+<p>Asian style chicken noodles</p>
+<div class="food-bottom">
+<span class="price">¥750</span>
+<button class="add" onclick="addCart('Chicken Chowmein',750)">+ Add</button>
+</div>
+</div>
+</div>
+
+<div class="food-card" data-cat="drinks" data-name="Cold Drink">
+<div class="food-img">🥤</div>
+<div class="food-body">
+<h3>Cold Drink</h3>
+<p>Refreshing chilled soft drink</p>
+<div class="food-bottom">
+<span class="price">¥250</span>
+<button class="add" onclick="addCart('Cold Drink',250)">+ Add</button>
+</div>
+</div>
+</div>
+
+<div class="food-card" data-cat="burger" data-name="Chicken Burger">
+<div class="food-img">🍔</div>
+<div class="food-body">
+<h3>Chicken Burger</h3>
+<p>Crispy chicken burger with fresh salad</p>
+<div class="food-bottom">
+<span class="price">¥790</span>
+<button class="add" onclick="addCart('Chicken Burger',790)">+ Add</button>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- FEATURES -->
+<section class="container">
+<div class="features">
+<div class="feature">
+<div class="feature-icon">⚡</div>
+<h3>Fast Delivery</h3>
+<p>Get your favorite food delivered quickly.</p>
+</div>
+
+<div class="feature">
+<div class="feature-icon">📍</div>
+<h3>Live Tracking</h3>
+<p>Track your rider and order status.</p>
+</div>
+
+<div class="feature">
+<div class="feature-icon">🔒</div>
+<h3>Secure Ordering</h3>
+<p>Simple and secure checkout experience.</p>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+<div class="footer-inner">
+<div>
+<h3>🌊 OCEAN DELIVERY</h3>
+<p>
+A complete food delivery platform connecting
+customers, restaurants, managers and riders.
+</p>
+</div>
+
+<div>
+<h3>Customer</h3>
+<ul>
+<li>Order Food</li>
+<li>Track Order</li>
+<li>My Orders</li>
+<li>Account</li>
+</ul>
+</div>
+
+<div>
+<h3>Partners</h3>
+<ul>
+<li>Restaurant</li>
+<li>Manager</li>
+<li>Become a Rider</li>
+<li>Partner Login</li>
+</ul>
+</div>
+
+<div>
+<h3>Company</h3>
+<ul>
+<li>About OCEAN</li>
+<li>Contact</li>
+<li>Support</li>
+<li>Admin</li>
+</ul>
+</div>
+</div>
+</footer>
+
+<!-- CART MODAL -->
+<div id="cartModal" class="modal">
+<div class="modal-box">
+<button class="close" onclick="closeModal('cartModal')">×</button>
+<h2 class="modal-title">🛒 Your Cart</h2>
+
+<div id="cartItems"></div>
+
+<div class="cart-total">
+<span>Total</span>
+<span id="cartTotal">¥0</span>
+</div>
+
+<button class="checkout" onclick="checkout()">
+Proceed to Checkout
+</button>
+</div>
+</div>
+
+<!-- ROLE MODAL -->
+<div id="roleModal" class="modal">
+<div class="modal-box">
+<button class="close" onclick="closeModal('roleModal')">×</button>
+
+<h2 class="modal-title">OCEAN Apps & Panels</h2>
+
+<div class="role-grid">
+
+<button class="role-btn active" onclick="showDashboard('customer',this)">
+👤<br>Customer
+</button>
+
+<button class="role-btn" onclick="showDashboard('rider',this)">
+🛵<br>Rider
+</button>
+
+<button class="role-btn" onclick="showDashboard('restaurant',this)">
+🍔<br>Food Partner
+</button>
+
+<button class="role-btn" onclick="showDashboard('manager',this)">
+🏪<br>Manager
+</button>
+
+<button class="role-btn" onclick="showDashboard('admin',this)">
+👑<br>Admin
+</button>
+
+</div>
+
+<!-- CUSTOMER DASHBOARD -->
+<div id="customer" class="dashboard active">
+
+<div class="dash-head">
+<h2>👤 Customer App</h2>
+<p>Manage your orders and delivery.</p>
+</div>
+
+<div class="dash-grid">
+<div class="stat"><small>Total Orders</small><h2>24</h2></div>
+<div class="stat"><small>Active Order</small><h2>#OC1024</h2></div>
+<div class="stat"><small>Saved Address</small><h2>2</h2></div>
+<div class="stat"><small>Reward Points</small><h2>480</h2></div>
+</div>
+
+<div class="panel">
+<h3>📦 Current Order</h3>
+<div class="notice">
+<b>Order #OC1024</b><br>
+Chicken Momo × 2<br>
+Restaurant is preparing your food.
+</div>
+<span class="badge orange">Preparing</span>
+</div>
+
+<div class="panel">
+<h3>Previous Orders</h3>
+<div class="table-wrap">
+<table>
+<tr><th>Order</th><th>Food</th><th>Total</th><th>Status</th></tr>
+<tr><td>#OC1023</td><td>Pizza</td><td>¥1,180</td><td><span class="badge green">Delivered</span></td></tr>
+<tr><td>#OC1022</td><td>Momo</td><td>¥1,360</td><td><span class="badge green">Delivered</span></td></tr>
+<tr><td>#OC1021</td><td>Burger</td><td>¥850</td><td><span class="badge green">Delivered</span></td></tr>
+</table>
+</div>
+</div>
+
+</div>
+
+<!-- RIDER DASHBOARD -->
+<div id="rider" class="dashboard">
+
+<div class="dash-head">
+<h2>🛵 Rider App</h2>
+<p>Manage deliveries and earnings.</p>
+</div>
+
+<div class="dash-grid">
+<div class="stat"><small>Today's Earnings</small><h2>¥8,420</h2></div>
+<div class="stat"><small>Deliveries</small><h2>18</h2></div>
+<div class="stat"><small>Online Time</small><h2>8.2h</h2></div>
+<div class="stat"><small>Rating</small><h2>4.9 ⭐</h2></div>
+</div>
+
+<div class="panel">
+<h3>🔔 New Delivery</h3>
+<div class="notice">
+<b>Order #OC1030</b><br>
+Restaurant: OCEAN Kitchen<br>
+Distance: 2.8 km<br>
+Estimated earning: ¥520
+</div>
+
+<button class="action" onclick="acceptDelivery(this)">
+Accept Delivery
+</button>
+<button class="action red" onclick="this.innerText='Declined'">
+Decline
+</button>
+</div>
+
+<div class="panel">
+<h3>Today's Deliveries</h3>
+<table>
+<tr><th>Order</th><th>Distance</th><th>Earning</th><th>Status</th></tr>
+<tr><td>#OC1028</td><td>2.1 km</td><td>¥460</td><td><span class="badge green">Completed</span></td></tr>
+<tr><td>#OC1029</td><td>3.4 km</td><td>¥580</td><td><span class="badge blue">On the way</span></td></tr>
+<tr><td>#OC1030</td><td>2.8 km</td><td>¥520</td><td><span class="badge orange">New</span></td></tr>
+</table>
+</div>
+
+</div>
+
+<!-- FOOD PARTNER -->
+<div id="restaurant" class="dashboard">
+
+<div class="dash-head">
+<h2>🍔 Food Partner App</h2>
+<p>Manage restaurant orders and menu.</p>
+</div>
+
+<div class="dash-grid">
+<div class="stat"><small>Today's Orders</small><h2>86</h2></div>
+<div class="stat"><small>Today's Sales</small><h2>¥72,840</h2></div>
+<div class="stat"><small>Active Orders</small><h2>12</h2></div>
+<div class="stat"><small>Rating</small><h2>4.8 ⭐</h2></div>
+</div>
+
+<div class="panel">
+<h3>🍽️ Incoming Orders</h3>
+
+<table>
+<tr>
+<th>Order</th>
+<th>Items</th>
+<th>Total</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+<tr>
+<td>#OC1031</td>
+<td>Chicken Momo ×2</td>
+<td>¥1,360</td>
+<td><span class="badge orange">New</span></td>
+<td><button class="action" onclick="updateOrder(this)">Accept</button></td>
+</tr>
+
+<tr>
+<td>#OC1032</td>
+<td>Pizza ×1</td>
+<td>¥1,180</td>
+<td><span class="badge orange">New</span></td>
+<td><button class="action" onclick="updateOrder(this)">Accept</button></td>
+</tr>
+
+<tr>
+<td>#OC1033</td>
+<td>Burger ×2</td>
+<td>¥1,700</td>
+<td><span class="badge blue">Preparing</span></td>
+<td><button class="action" onclick="updateOrder(this)">Ready</button></td>
+</tr>
+</table>
+</div>
+
+</div>
+
+<!-- MANAGER -->
+<div id="manager" class="dashboard">
+
+<div class="dash-head">
+<h2>🏪 Restaurant Manager</h2>
+<p>Complete restaurant management system.</p>
+</div>
+
+<div class="dash-grid">
+<div class="stat"><small>Monthly Sales</small><h2>¥1.82M</h2></div>
+<div class="stat"><small>Total Orders</small><h2>2,486</h2></div>
+<div class="stat"><small>Customers</small><h2>1,204</h2></div>
+<div class="stat"><small>Commission</small><h2>¥182K</h2></div>
+</div>
+
+<div class="panel">
+<h3>📊 Restaurant Performance</h3>
+
+<div class="notice">
+<b>Sales:</b> ¥1,820,000<br>
+<b>Orders:</b> 2,486<br>
+<b>Average Order:</b> ¥732<br>
+<b>Customer Rating:</b> 4.8 ⭐
+</div>
+</div>
+
+<div class="panel">
+<h3>🍽️ Menu Management</h3>
+
+<button class="action" onclick="addMenu()">＋ Add New Food</button>
+
+<table style="margin-top:15px">
+<tr><th>Food</th><th>Price</th><th>Available</th><th>Action</th></tr>
+<tr><td>Chicken Momo</td><td>¥680</td><td><span class="badge green">Yes</span></td><td><button class="action blue">Edit</button></td></tr>
+<tr><td>Veg Momo</td><td>¥650</td><td><span class="badge green">Yes</span></td><td><button class="action blue">Edit</button></td></tr>
+<tr><td>Chicken Chowmein</td><td>¥750</td><td><span class="badge red">No</span></td><td><button class="action blue">Edit</button></td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h3>👨‍🍳 Staff Management</h3>
+
+<table>
+<tr><th>Name</th><th>Role</th><th>Status</th></tr>
+<tr><td>Staff 01</td><td>Kitchen</td><td><span class="badge green">Active</span></td></tr>
+<tr><td>Staff 02</td><td>Kitchen</td><td><span class="badge green">Active</span></td></tr>
+<tr><td>Staff 03</td><td>Cashier</td><td><span class="badge orange">Break</span></td></tr>
+</table>
+</div>
+
+</div>
+
+<!-- ADMIN -->
+<div id="admin" class="dashboard">
+
+<div class="dash-head">
+<h2>👑 OCEAN Admin Panel</h2>
+<p>Control the complete OCEAN platform.</p>
+</div>
+
+<div class="dash-grid">
+<div class="stat"><small>Total Customers</small><h2>28,420</h2></div>
+<div class="stat"><small>Restaurants</small><h2>426</h2></div>
+<div class="stat"><small>Riders</small><h2>1,280</h2></div>
+<div class="stat"><small>Platform Revenue</small><h2>¥8.4M</h2></div>
+</div>
+
+<div class="panel">
+<h3>📦 Platform Orders</h3>
+
+<table>
+<tr>
+<th>Order</th>
+<th>Customer</th>
+<th>Restaurant</th>
+<th>Rider</th>
+<th>Total</th>
+<th>Status</th>
+</tr>
+
+<tr>
+<td>#OC1031</td>
+<td>Customer 01</td>
+<td>OCEAN Kitchen</td>
+<td>Rider 21</td>
+<td>¥1,360</td>
+<td><span class="badge blue">On Way</span></td>
+</tr>
+
+<tr>
+<td>#OC1032</td>
+<td>Customer 02</td>
+<td>Tokyo Food</td>
+<td>Rider 14</td>
+<td>¥1,180</td>
+<td><span class="badge orange">Preparing</span></td>
+</tr>
+
+<tr>
+<td>#OC1033</td>
+<td>Customer 03</td>
+<td>Halal House</td>
+<td>Rider 08</td>
+<td>¥2,100</td>
+<td><span class="badge green">Delivered</span></td>
+</tr>
+</table>
+</div>
+
+<div class="panel">
+<h3>👥 User Management</h3>
+
+<table>
+<tr><th>User</th><th>Type</th><th>Status</th><th>Action</th></tr>
+<tr><td>Customer 001</td><td>Customer</td><td><span class="badge green">Active</span></td><td><button class="action blue">View</button></td></tr>
+<tr><td>Restaurant 021</td><td>Restaurant</td><td><span class="badge green">Verified</span></td><td><button class="action blue">Manage</button></td></tr>
+<tr><td>Rider 103</td><td>Rider</td><td><span class="badge green">Online</span></td><td><button class="action blue">View</button></td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h3>⚙️ Platform Controls</h3>
+
+<div class="form-grid">
+
+<div class="field">
+<label>Delivery Commission %</label>
+<input value="20">
+</div>
+
+<div class="field">
+<label>Minimum Delivery Fee ¥</label>
+<input value="300">
+</div>
+
+<div class="field">
+<label>Maximum Delivery Radius KM</label>
+<input value="15">
+</div>
+
+<div class="field">
+<label>Platform Status</label>
+<select>
+<option>Online</option>
+<option>Maintenance</option>
+</select>
+</div>
+
+<div class="full">
+<button class="action" onclick="saveSettings()">Save Platform Settings</button>
+</div>
+
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+let cart=[];
+
+function addCart(name,price){
+let item=cart.find(x=>x.name===name);
+
+if(item){
+item.qty++;
+}else{
+cart.push({name:name,price:price,qty:1});
+}
+
+updateCart();
+alert(name+" added to cart.");
+}
+
+function updateCart(){
+let count=cart.reduce((sum,x)=>sum+x.qty,0);
+document.getElementById("cartCount").innerText=count;
+
+let box=document.getElementById("cartItems");
+
+if(!cart.length){
+box.innerHTML="<div class='notice'>Your cart is empty.</div>";
+document.getElementById("cartTotal").innerText="¥0";
+return;
+}
+
+let total=0;
+
+box.innerHTML=cart.map((item,index)=>{
+
+let subtotal=item.price*item.qty;
+total+=subtotal;
+
+return `
+<div class="cart-item">
+<div>
+<b>${item.name}</b><br>
+¥${item.price.toLocaleString()} × ${item.qty}
+</div>
+
+<div class="qty">
+<button onclick="changeQty(${index},-1)">−</button>
+<span>${item.qty}</span>
+<button onclick="changeQty(${index},1)">+</button>
+</div>
+
+<div>
+<b>¥${subtotal.toLocaleString()}</b>
+</div>
+</div>
+`;
+
+}).join("");
+
+document.getElementById("cartTotal").innerText=
+"¥"+total.toLocaleString();
+}
+
+function changeQty(index,amount){
+cart[index].qty+=amount;
+
+if(cart[index].qty<=0){
+cart.splice(index,1);
+}
+
+updateCart();
+}
+
+function openCart(){
+document.getElementById("cartModal").style.display="block";
+updateCart();
+}
+
+function openRoles(){
+document.getElementById("roleModal").style.display="block";
+}
+
+function closeModal(id){
+document.getElementById(id).style.display="none";
+}
+
+function checkout(){
+
+if(!cart.length){
+alert("Your cart is empty.");
+return;
+}
+
+alert(
+"Checkout demo complete!\n\n"+
+"In the real OCEAN system this button will connect to the secure payment system."
+);
+
+cart=[];
+updateCart();
+closeModal("cartModal");
+}
+
+function showDashboard(id,btn){
+
+document.querySelectorAll(".dashboard")
+.forEach(x=>x.classList.remove("active"));
+
+document.querySelectorAll(".role-btn")
+.forEach(x=>x.classList.remove("active"));
+
+document.getElementById(id).classList.add("active");
+btn.classList.add("active");
+}
+
+function filterFood(cat){
+
+document.querySelectorAll(".food-card").forEach(card=>{
+
+if(cat==="all" || card.dataset.cat===cat){
+card.style.display="";
+}else{
+card.style.display="none";
+}
+
+});
+}
+
+function searchFood(){
+
+let q=document.getElementById("searchInput")
+.value.toLowerCase();
+
+document.querySelectorAll(".food-card").forEach(card=>{
+
+let name=card.dataset.name.toLowerCase();
+
+card.style.display=
+name.includes(q) ? "" : "none";
+
+});
+
+}
+
+function acceptDelivery(btn){
+btn.innerText="Delivery Accepted ✓";
+btn.style.background="#1971c2";
+}
+
+function updateOrder(btn){
+
+btn.innerText="Updated ✓";
+btn.style.background="#087f5b";
+}
+
+function addMenu(){
+
+alert(
+"Add Food Demo\n\n"+
+"Later this will open the restaurant menu creation system."
+);
+
+}
+
+function saveSettings(){
+
+alert("OCEAN platform settings saved successfully.");
+}
+
+window.onclick=function(e){
+
+if(e.target.classList.contains("modal")){
+e.target.style.display="none";
+}
+
+};
+
+updateCart();
+
+</script>
+
+</body>
+</html>

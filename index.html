@@ -2,341 +2,491 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>OCEAN Gaming Platform</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#ff5a1f">
+<title>OCEAN Delivery</title>
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{
-  width:100%;
-  min-height:100%;
-  background:#050817;
-  color:#fff;
   font-family:Arial,Helvetica,sans-serif;
+  background:#f5f6f8;
+  color:#172033;
 }
-body{padding-bottom:88px}
-
-.app{
-  width:100%;
-  max-width:760px;
-  margin:auto;
-  min-height:100vh;
-  background:
-    radial-gradient(circle at 85% 10%,rgba(0,174,255,.12),transparent 28%),
-    #050817;
-}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh}
 
 /* HEADER */
 .header{
-  height:92px;
-  padding:20px 18px 10px;
+  height:70px;
+  background:#fff;
+  border-bottom:1px solid #e8eaf0;
   display:flex;
   align-items:center;
   justify-content:space-between;
+  padding:0 24px;
+  position:sticky;
+  top:0;
+  z-index:50;
 }
 .logo{
-  font-size:38px;
+  font-size:27px;
   font-weight:900;
+  color:#ff5a1f;
+}
+.logo small{
+  display:block;
+  color:#7d8494;
+  font-size:9px;
   letter-spacing:2px;
-  background:linear-gradient(90deg,#00aaff,#32d7ff);
-  -webkit-background-clip:text;
-  color:transparent;
 }
-.sub{
-  color:#8490aa;
-  font-size:13px;
-  letter-spacing:1px;
-  margin-top:-3px;
-}
-.balance{
-  border:1px solid #164987;
-  background:linear-gradient(135deg,#101d40,#081329);
-  border-radius:30px;
-  padding:12px 18px;
+.header-right{
   display:flex;
   align-items:center;
-  gap:8px;
-  box-shadow:0 0 20px rgba(0,137,255,.12);
-}
-.coin{
-  width:28px;height:28px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(#ffe873,#e9a900);
-  color:#805b00;
-  font-weight:bold;
-}
-.balance span:last-child{
-  color:#ffd84d;
-  font-size:18px;
-  font-weight:bold;
-}
-
-/* HERO */
-.hero{
-  margin:14px 18px 18px;
-  min-height:385px;
-  border:1px solid #008fe5;
-  border-radius:28px;
-  overflow:hidden;
-  position:relative;
-  padding:35px 28px;
-  background:
-    radial-gradient(circle at 75% 45%,rgba(0,191,255,.45),transparent 35%),
-    linear-gradient(135deg,#092b50,#06223b 55%,#071b2d);
-  box-shadow:0 12px 35px rgba(0,132,255,.13);
-}
-.hero:after{
-  content:"";
-  position:absolute;
-  width:230px;height:230px;
-  right:-90px;bottom:-90px;
-  border-radius:50%;
-  background:rgba(0,192,255,.14);
-  filter:blur(5px);
-}
-.welcome{
-  color:#8ca8c8;
-  font-size:17px;
-  margin-bottom:8px;
-}
-.hero h1{
-  position:relative;
-  z-index:2;
-  font-size:46px;
-  line-height:1.08;
-  font-weight:900;
-  max-width:550px;
-}
-.hero p{
-  position:relative;
-  z-index:2;
-  margin-top:28px;
-  color:#b4c8df;
-  font-size:19px;
-  line-height:1.45;
-  max-width:520px;
-}
-.play{
-  position:relative;
-  z-index:3;
-  margin-top:30px;
-  border:0;
-  border-radius:18px;
-  padding:17px 30px;
-  color:white;
-  font-size:18px;
-  font-weight:800;
-  background:linear-gradient(100deg,#078fff,#21c6ed);
-  box-shadow:0 10px 25px rgba(0,157,255,.28);
-  cursor:pointer;
-}
-
-/* LIVE MESSAGE */
-.notice{
-  margin:0 18px 18px;
-  padding:17px 20px;
-  border:1px solid #1a315c;
-  border-radius:20px;
-  background:#0b1732;
-  color:#b7c6dc;
-  font-size:16px;
-}
-.notice b{color:white}
-
-/* CATEGORIES */
-.categories{
-  display:flex;
   gap:12px;
-  overflow-x:auto;
-  padding:5px 18px 20px;
-  scrollbar-width:none;
 }
-.categories::-webkit-scrollbar{display:none}
-.cat{
-  flex:0 0 auto;
-  padding:13px 23px;
-  border:1px solid #203861;
-  background:#09132a;
-  border-radius:18px;
-  color:#aab8cd;
-  font-size:17px;
-  cursor:pointer;
-}
-.cat.active{
-  color:white;
-  background:linear-gradient(100deg,#078ef1,#14b9e9);
-  border-color:#19bfff;
-  box-shadow:0 8px 20px rgba(0,157,255,.2);
-}
-
-/* SECTION */
-.section{
-  padding:0 18px;
-}
-.section-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:5px 0 18px;
-}
-.section-head h2{font-size:28px}
-.section-head span{color:#8794ab;font-size:16px}
-
-/* GAMES */
-.games{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:16px;
-}
-.game{
-  position:relative;
-  overflow:hidden;
-  border:1px solid #1c3b65;
-  border-radius:22px;
-  background:#0a1429;
-  box-shadow:0 8px 25px rgba(0,0,0,.25);
-  cursor:pointer;
-  transition:.2s;
-}
-.game:active{transform:scale(.97)}
-.game-art{
-  height:205px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  position:relative;
-  overflow:hidden;
-}
-.game-art:before{
-  content:"";
-  position:absolute;
-  width:170px;height:170px;
-  border-radius:50%;
-  background:rgba(255,255,255,.1);
-  filter:blur(2px);
-}
-.ocean{
-  background:radial-gradient(circle at 50% 30%,#31c9ff,#07528e 60%,#061a35);
-}
-.jackpot{
-  background:radial-gradient(circle at 50% 35%,#ffb018,#8e2807 62%,#331008);
-}
-.neon{
-  background:radial-gradient(circle at 50% 35%,#c832ff,#37136e 62%,#130921);
-}
-.royal{
-  background:radial-gradient(circle at 50% 35%,#45d7ad,#075d58 62%,#062f35);
-}
-.art-title{
-  position:relative;
-  z-index:2;
-  font-size:29px;
-  font-weight:900;
-  line-height:1.05;
-  text-shadow:0 3px 8px rgba(0,0,0,.55);
-}
-.wave{font-size:55px;margin-bottom:7px}
-.crown{font-size:55px;margin-bottom:7px}
-.card-icon{font-size:52px;margin-bottom:7px}
-
-.hot{
-  position:absolute;
-  top:12px;left:12px;
-  z-index:5;
-  background:#ff3044;
-  padding:7px 10px;
-  border-radius:9px;
-  font-weight:900;
+.role-badge{
+  background:#fff1eb;
+  color:#e94d16;
+  padding:9px 14px;
+  border-radius:20px;
   font-size:13px;
+  font-weight:bold;
 }
-.game-info{
-  padding:13px 14px 16px;
-}
-.game-info h3{font-size:17px}
-.game-info p{
-  color:#7f8da5;
-  font-size:13px;
-  margin-top:5px;
+.menu-btn{
+  border:0;
+  background:#f2f3f6;
+  width:42px;
+  height:42px;
+  border-radius:12px;
 }
 
-/* BOTTOM NAV */
-.bottom{
+/* LAYOUT */
+.layout{
+  display:flex;
+  max-width:1400px;
+  margin:auto;
+}
+.sidebar{
+  width:240px;
+  background:#fff;
+  min-height:calc(100vh - 70px);
+  border-right:1px solid #e8eaf0;
+  padding:20px 14px;
   position:fixed;
-  z-index:100;
+  top:70px;
   bottom:0;
-  left:0;
-  right:0;
-  height:78px;
-  background:rgba(5,11,27,.97);
-  border-top:1px solid #182944;
-  display:flex;
-  justify-content:center;
 }
-.nav{
+.sidebar button{
   width:100%;
-  max-width:760px;
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-}
-.nav button{
   border:0;
   background:none;
-  color:#77839a;
-  font-size:13px;
+  padding:13px 15px;
+  text-align:left;
+  border-radius:12px;
+  margin-bottom:5px;
+  color:#667085;
+  font-weight:600;
+}
+.sidebar button.active,
+.sidebar button:hover{
+  background:#fff0e9;
+  color:#ff5a1f;
+}
+.main{
+  margin-left:240px;
+  width:calc(100% - 240px);
+  padding:25px;
+}
+
+/* VIEWS */
+.view{display:none}
+.view.active{display:block}
+.page-title{
+  font-size:28px;
+  font-weight:800;
+  margin-bottom:5px;
+}
+.page-sub{
+  color:#7b8495;
+  margin-bottom:24px;
+}
+
+/* CUSTOMER HERO */
+.customer-hero{
+  background:linear-gradient(120deg,#ff5a1f,#ff8a42);
+  color:#fff;
+  border-radius:24px;
+  padding:35px;
+  margin-bottom:25px;
+}
+.customer-hero h1{
+  font-size:36px;
+  margin-bottom:10px;
+}
+.customer-hero p{
+  opacity:.9;
+}
+.search{
+  margin-top:25px;
+  width:100%;
+  max-width:650px;
+  background:#fff;
+  border:0;
+  border-radius:14px;
+  padding:16px 18px;
+  color:#333;
+}
+
+/* CATEGORY */
+.categories{
   display:flex;
-  flex-direction:column;
+  gap:10px;
+  overflow:auto;
+  margin-bottom:25px;
+}
+.category{
+  flex:0 0 auto;
+  border:1px solid #e2e5eb;
+  background:#fff;
+  padding:11px 18px;
+  border-radius:22px;
+}
+.category.active{
+  background:#ff5a1f;
+  color:#fff;
+  border-color:#ff5a1f;
+}
+
+/* CARDS */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
+.card{
+  background:#fff;
+  border:1px solid #e7e9ee;
+  border-radius:18px;
+  overflow:hidden;
+}
+.food-img{
+  height:150px;
+  display:flex;
   align-items:center;
   justify-content:center;
-  gap:6px;
-  cursor:pointer;
+  font-size:65px;
+  background:#fff3ed;
 }
-.nav button.active{color:#19b9ff}
-.nav-icon{font-size:24px}
+.card-body{padding:15px}
+.card h3{
+  margin-bottom:6px;
+  font-size:17px;
+}
+.muted{color:#7d8494;font-size:13px}
+.price{
+  font-size:19px;
+  font-weight:800;
+  margin-top:10px;
+}
+.add-btn{
+  margin-top:12px;
+  width:100%;
+  border:0;
+  background:#ff5a1f;
+  color:#fff;
+  padding:11px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+/* RESTAURANT */
+.restaurant{
+  background:#fff;
+  border:1px solid #e5e7ec;
+  border-radius:18px;
+  padding:18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+.restaurant-left{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+.restaurant-icon{
+  width:58px;
+  height:58px;
+  border-radius:14px;
+  background:#fff1eb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+}
+.rating{color:#f59e0b}
+
+/* CART */
+.cart{
+  background:#fff;
+  border-radius:18px;
+  border:1px solid #e5e7ec;
+  padding:20px;
+}
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  padding:13px 0;
+  border-bottom:1px solid #eee;
+}
+.qty{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.qty button{
+  border:0;
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  background:#f0f1f4;
+}
+.total{
+  display:flex;
+  justify-content:space-between;
+  font-size:21px;
+  font-weight:800;
+  padding-top:18px;
+}
+.primary{
+  border:0;
+  background:#ff5a1f;
+  color:#fff;
+  padding:13px 20px;
+  border-radius:11px;
+  font-weight:bold;
+}
+.secondary{
+  border:1px solid #ddd;
+  background:#fff;
+  padding:12px 18px;
+  border-radius:10px;
+}
+
+/* DASHBOARD */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  margin-bottom:25px;
+}
+.stat{
+  background:#fff;
+  border:1px solid #e6e8ed;
+  border-radius:17px;
+  padding:20px;
+}
+.stat-icon{
+  font-size:26px;
+  margin-bottom:15px;
+}
+.stat-number{
+  font-size:27px;
+  font-weight:900;
+}
+.stat-label{
+  color:#7d8494;
+  font-size:13px;
+  margin-top:4px;
+}
+
+/* TABLE */
+.table-wrap{
+  background:#fff;
+  border:1px solid #e5e7ec;
+  border-radius:18px;
+  overflow:auto;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:700px;
+}
+th,td{
+  text-align:left;
+  padding:15px;
+  border-bottom:1px solid #eee;
+  font-size:14px;
+}
+th{
+  background:#fafafa;
+  color:#697386;
+}
+.status{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:15px;
+  font-size:12px;
+  font-weight:bold;
+}
+.pending{background:#fff4d8;color:#a56b00}
+.confirmed{background:#e7f1ff;color:#1664c0}
+.preparing{background:#f0e9ff;color:#7546bb}
+.delivery{background:#e5f8ee;color:#16804b}
+.delivered{background:#dcf8e8;color:#08783e}
+.cancelled{background:#ffe5e5;color:#c42d2d}
+
+/* FORMS */
+.form-card{
+  max-width:700px;
+  background:#fff;
+  border:1px solid #e4e6eb;
+  border-radius:18px;
+  padding:24px;
+}
+.form-group{margin-bottom:17px}
+.form-group label{
+  display:block;
+  font-weight:bold;
+  margin-bottom:7px;
+}
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width:100%;
+  border:1px solid #dfe2e8;
+  border-radius:10px;
+  padding:13px;
+  outline:none;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+  border-color:#ff5a1f;
+}
+
+/* ORDER TRACK */
+.track{
+  background:#fff;
+  border:1px solid #e4e6eb;
+  border-radius:18px;
+  padding:22px;
+}
+.track-line{
+  display:flex;
+  justify-content:space-between;
+  position:relative;
+  margin:25px 0;
+}
+.track-line:before{
+  content:"";
+  position:absolute;
+  top:15px;
+  left:5%;
+  right:5%;
+  height:3px;
+  background:#e1e4ea;
+}
+.track-step{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  width:20%;
+}
+.track-dot{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:#ddd;
+  margin:auto auto 8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.track-step.done .track-dot{
+  background:#ff5a1f;
+  color:#fff;
+}
+.track-step small{color:#777}
 
 /* MODAL */
 .modal{
   display:none;
   position:fixed;
-  z-index:200;
   inset:0;
-  background:rgba(0,0,0,.75);
+  background:rgba(0,0,0,.55);
+  z-index:200;
   align-items:center;
   justify-content:center;
   padding:20px;
 }
+.modal.show{display:flex}
 .modal-box{
+  background:#fff;
   width:100%;
-  max-width:420px;
-  background:#0a1429;
-  border:1px solid #1c67a5;
-  border-radius:25px;
+  max-width:480px;
+  border-radius:20px;
   padding:25px;
-  text-align:center;
 }
-.modal-box h2{font-size:27px;margin-bottom:10px}
-.modal-box p{color:#9aa9c0;line-height:1.5}
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
 .close{
-  margin-top:20px;
-  width:100%;
   border:0;
-  border-radius:15px;
-  padding:14px;
-  background:#118fe5;
-  color:#fff;
-  font-weight:bold;
-  font-size:16px;
+  background:#f0f1f3;
+  width:35px;
+  height:35px;
+  border-radius:10px;
 }
 
-/* RESPONSIVE */
-@media(max-width:430px){
-  .logo{font-size:34px}
-  .balance{padding:10px 13px}
-  .balance span:last-child{font-size:16px}
-  .hero{min-height:370px;padding:32px 25px}
-  .hero h1{font-size:42px}
-  .game-art{height:180px}
-  .art-title{font-size:25px}
+/* MOBILE */
+@media(max-width:1000px){
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  .header{padding:0 15px}
+  .sidebar{
+    width:100%;
+    height:65px;
+    min-height:0;
+    top:auto;
+    bottom:0;
+    z-index:100;
+    border-top:1px solid #ddd;
+    border-right:0;
+    padding:5px;
+  }
+  .sidebar button{
+    width:20%;
+    display:inline-flex;
+    justify-content:center;
+    align-items:center;
+    padding:9px 2px;
+    font-size:10px;
+    text-align:center;
+  }
+  .main{
+    margin-left:0;
+    width:100%;
+    padding:15px;
+    padding-bottom:85px;
+  }
+  .grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:10px}
+  .customer-hero{padding:25px}
+  .customer-hero h1{font-size:27px}
+  .food-img{height:125px;font-size:52px}
+  .page-title{font-size:23px}
+}
+@media(max-width:420px){
+  .grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -345,177 +495,206 @@ body{padding-bottom:88px}
 <div class="app">
 
 <header class="header">
-  <div>
-    <div class="logo">OCEAN</div>
-    <div class="sub">GAMING PLATFORM</div>
+  <div class="logo">
+    OCEAN
+    <small>DELIVERY PLATFORM</small>
   </div>
 
-  <div class="balance">
-    <div class="coin">●</div>
-    <span id="balance">125,000.00</span>
+  <div class="header-right">
+    <div class="role-badge" id="roleBadge">Customer</div>
+    <button class="menu-btn" onclick="openModal('accountModal')">☰</button>
   </div>
 </header>
 
-<section class="hero">
-  <div class="welcome">WELCOME TO OCEAN</div>
-  <h1>DIVE INTO<br>ENDLESS<br>ENTERTAINMENT</h1>
-  <p>Slots, live-style games, sports-style cards and more.</p>
-  <button class="play" onclick="openDemo('OCEAN Demo')">PLAY DEMO</button>
-</section>
+<div class="layout">
 
-<div class="notice">
-  📡 Congratulations! <b>OCEAN789</b> just played <b>OCEAN Fortune</b>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+<button class="active" onclick="showView('home',this)">🏠 Home</button>
+<button onclick="showView('restaurants',this)">🏪 Shops</button>
+<button onclick="showView('orders',this)">📦 Orders</button>
+<button onclick="showView('cart',this)">🛒 Cart</button>
+<button onclick="showView('admin',this)">📊 Admin</button>
+
+</aside>
+
+<main class="main">
+
+<!-- CUSTOMER HOME -->
+<section class="view active" id="home">
+
+<div class="customer-hero">
+<h1>Hungry? We deliver.</h1>
+<p>Order your favourite food from local restaurants.</p>
+<input class="search" id="searchInput"
+placeholder="🔍 Search food or restaurant..."
+oninput="searchFood()">
 </div>
 
 <div class="categories">
-  <button class="cat active" onclick="filterGames('all',this)">All Games</button>
-  <button class="cat" onclick="filterGames('hot',this)">🔥 Hot</button>
-  <button class="cat" onclick="filterGames('new',this)">✨ New</button>
-  <button class="cat" onclick="filterGames('slot',this)">🎰 Slots</button>
-  <button class="cat" onclick="filterGames('card',this)">🃏 Cards</button>
+<button class="category active" onclick="categoryFilter('all',this)">All</button>
+<button class="category" onclick="categoryFilter('momo',this)">🥟 Momo</button>
+<button class="category" onclick="categoryFilter('noodles',this)">🍜 Noodles</button>
+<button class="category" onclick="categoryFilter('rice',this)">🍚 Rice</button>
+<button class="category" onclick="categoryFilter('drinks',this)">🥤 Drinks</button>
 </div>
 
-<section class="section">
-  <div class="section-head">
-    <h2>Popular Games</h2>
-    <span>OCEAN Originals</span>
-  </div>
+<h2 style="margin-bottom:16px">Popular Food</h2>
 
-  <div class="games">
+<div class="grid" id="foodGrid">
 
-    <div class="game" data-type="hot slot"
-         onclick="openDemo('OCEAN Fortune')">
-      <div class="game-art ocean">
-        <div class="hot">HOT</div>
-        <div>
-          <div class="wave">🌊</div>
-          <div class="art-title">OCEAN<br>FORTUNE</div>
-        </div>
-      </div>
-      <div class="game-info">
-        <h3>OCEAN Fortune</h3>
-        <p>Demo • Virtual Coins</p>
-      </div>
-    </div>
+<div class="card food-card" data-category="momo" data-name="Chicken Momo">
+<div class="food-img">🥟</div>
+<div class="card-body">
+<h3>Chicken Momo</h3>
+<div class="muted">Steamed • 10 pcs</div>
+<div class="price">¥680</div>
+<button class="add-btn" onclick="addCart('Chicken Momo',680)">＋ Add</button>
+</div>
+</div>
 
-    <div class="game" data-type="hot slot"
-         onclick="openDemo('Jackpot Gold')">
-      <div class="game-art jackpot">
-        <div class="hot">HOT</div>
-        <div>
-          <div class="crown">👑</div>
-          <div class="art-title">JACKPOT<br>GOLD</div>
-        </div>
-      </div>
-      <div class="game-info">
-        <h3>Jackpot Gold</h3>
-        <p>Demo • Virtual Coins</p>
-      </div>
-    </div>
+<div class="card food-card" data-category="momo" data-name="Jhol Momo">
+<div class="food-img">🥟</div>
+<div class="card-body">
+<h3>Chicken Jhol Momo</h3>
+<div class="muted">Spicy soup momo</div>
+<div class="price">¥750</div>
+<button class="add-btn" onclick="addCart('Chicken Jhol Momo',750)">＋ Add</button>
+</div>
+</div>
 
-    <div class="game" data-type="new slot"
-         onclick="openDemo('Neon Spin')">
-      <div class="game-art neon">
-        <div>
-          <div class="card-icon">💎</div>
-          <div class="art-title">NEON<br>SPIN</div>
-        </div>
-      </div>
-      <div class="game-info">
-        <h3>Neon Spin</h3>
-        <p>New • Demo Game</p>
-      </div>
-    </div>
+<div class="card food-card" data-category="momo" data-name="Veg Momo">
+<div class="food-img">🥟</div>
+<div class="card-body">
+<h3>Veg Momo</h3>
+<div class="muted">Steamed • 10 pcs</div>
+<div class="price">¥650</div>
+<button class="add-btn" onclick="addCart('Veg Momo',650)">＋ Add</button>
+</div>
+</div>
 
-    <div class="game" data-type="new card"
-         onclick="openDemo('Ocean Royal')">
-      <div class="game-art royal">
-        <div>
-          <div class="card-icon">🃏</div>
-          <div class="art-title">OCEAN<br>ROYAL</div>
-        </div>
-      </div>
-      <div class="game-info">
-        <h3>Ocean Royal</h3>
-        <p>New • Demo Game</p>
-      </div>
-    </div>
+<div class="card food-card" data-category="noodles" data-name="Chicken Chowmein">
+<div class="food-img">🍜</div>
+<div class="card-body">
+<h3>Chicken Chowmein</h3>
+<div class="muted">Nepali style noodles</div>
+<div class="price">¥850</div>
+<button class="add-btn" onclick="addCart('Chicken Chowmein',850)">＋ Add</button>
+</div>
+</div>
 
-  </div>
+<div class="card food-card" data-category="rice" data-name="Mutton Rice">
+<div class="food-img">🍛</div>
+<div class="card-body">
+<h3>Mutton Rice</h3>
+<div class="muted">Halal • Spicy</div>
+<div class="price">¥980</div>
+<button class="add-btn" onclick="addCart('Mutton Rice',980)">＋ Add</button>
+</div>
+</div>
+
+<div class="card food-card" data-category="noodles" data-name="Bhutan Mix">
+<div class="food-img">🍝</div>
+<div class="card-body">
+<h3>Bhutan Mix</h3>
+<div class="muted">Spicy mixed noodles</div>
+<div class="price">¥780</div>
+<button class="add-btn" onclick="addCart('Bhutan Mix',780)">＋ Add</button>
+</div>
+</div>
+
+<div class="card food-card" data-category="rice" data-name="Chicken Rice">
+<div class="food-img">🍚</div>
+<div class="card-body">
+<h3>Chicken Rice</h3>
+<div class="muted">Halal chicken</div>
+<div class="price">¥850</div>
+<button class="add-btn" onclick="addCart('Chicken Rice',850)">＋ Add</button>
+</div>
+</div>
+
+<div class="card food-card" data-category="drinks" data-name="Soft Drink">
+<div class="food-img">🥤</div>
+<div class="card-body">
+<h3>Soft Drink</h3>
+<div class="muted">Cold drink</div>
+<div class="price">¥180</div>
+<button class="add-btn" onclick="addCart('Soft Drink',180)">＋ Add</button>
+</div>
+</div>
+
+</div>
 </section>
 
+<!-- RESTAURANTS -->
+<section class="view" id="restaurants">
+
+<h1 class="page-title">Restaurants & Shops</h1>
+<p class="page-sub">Choose a restaurant near you.</p>
+
+<div class="restaurant">
+<div class="restaurant-left">
+<div class="restaurant-icon">🍽️</div>
+<div>
+<h3>OCEAN Momo House</h3>
+<div class="rating">★★★★★ <span class="muted">4.8</span></div>
+<div class="muted">Nepali • Halal • 20–30 min</div>
+</div>
+</div>
+<button class="primary" onclick="showView('home')">View Menu</button>
 </div>
 
-<nav class="bottom">
-  <div class="nav">
-    <button class="active" onclick="navClick(this,'Home')">
-      <span class="nav-icon">⌂</span>
-      Home
-    </button>
-    <button onclick="navClick(this,'Games')">
-      <span class="nav-icon">🎮</span>
-      Games
-    </button>
-    <button onclick="navClick(this,'Deposit')">
-      <span class="nav-icon">＋</span>
-      Deposit
-    </button>
-    <button onclick="navClick(this,'Wallet')">
-      <span class="nav-icon">▣</span>
-      Wallet
-    </button>
-    <button onclick="navClick(this,'Profile')">
-      <span class="nav-icon">●</span>
-      Profile
-    </button>
-  </div>
-</nav>
-
-<div class="modal" id="modal">
-  <div class="modal-box">
-    <h2 id="modalTitle">OCEAN</h2>
-    <p>Demo mode is ready. This version uses virtual coins only.</p>
-    <button class="close" onclick="closeDemo()">CLOSE</button>
-  </div>
+<div class="restaurant">
+<div class="restaurant-left">
+<div class="restaurant-icon">🍛</div>
+<div>
+<h3>Himalayan Kitchen</h3>
+<div class="rating">★★★★☆ <span class="muted">4.5</span></div>
+<div class="muted">Indian/Nepali • 25–35 min</div>
+</div>
+</div>
+<button class="primary" onclick="showView('home')">View Menu</button>
 </div>
 
-<script>
-function openDemo(name){
-  document.getElementById("modalTitle").textContent=name;
-  document.getElementById("modal").style.display="flex";
-}
+<div class="restaurant">
+<div class="restaurant-left">
+<div class="restaurant-icon">🥘</div>
+<div>
+<h3>Tokyo Halal Food</h3>
+<div class="rating">★★★★★ <span class="muted">4.7</span></div>
+<div class="muted">Halal • 20–35 min</div>
+</div>
+</div>
+<button class="primary" onclick="showView('home')">View Menu</button>
+</div>
 
-function closeDemo(){
-  document.getElementById("modal").style.display="none";
-}
+</section>
 
-function filterGames(type,btn){
-  document.querySelectorAll(".cat").forEach(x=>x.classList.remove("active"));
-  btn.classList.add("active");
+<!-- ORDERS -->
+<section class="view" id="orders">
 
-  document.querySelectorAll(".game").forEach(game=>{
-    if(type==="all" || game.dataset.type.includes(type)){
-      game.style.display="block";
-    }else{
-      game.style.display="none";
-    }
-  });
-}
+<h1 class="page-title">My Orders</h1>
+<p class="page-sub">Track your recent delivery.</p>
 
-function navClick(btn,name){
-  document.querySelectorAll(".nav button")
-    .forEach(x=>x.classList.remove("active"));
-  btn.classList.add("active");
+<div class="track">
 
-  if(name!=="Home"){
-    openDemo(name);
-  }
-}
+<h3>Order #OCN-1001</h3>
+<p class="muted" style="margin-top:5px">Chicken Momo × 2 • ¥1,360</p>
 
-document.getElementById("modal").addEventListener("click",function(e){
-  if(e.target===this) closeDemo();
-});
-</script>
+<div class="track-line">
 
-</body>
-</html>
+<div class="track-step done">
+<div class="track-dot">✓</div>
+<strong>Placed</strong>
+<small>Done</small>
+</div>
+
+<div class="track-step done">
+<div class="track-dot">✓</div>
+<strong>Confirmed</strong>
+<small>Done</small>
+</div>
+
+<div class="track-step done">
+<div class="track-dot">✓

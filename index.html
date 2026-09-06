@@ -476,6 +476,23 @@ th{background:#f8f9fa}
 
 let cart=[];
 
+/* OCEAN BACKEND */
+const API_URL = "https://ocean-wnf2.onrender.com";
+
+fetch(API_URL)
+.then(function(response){
+if(!response.ok){
+throw new Error("Backend response error: "+response.status);
+}
+return response.json();
+})
+.then(function(data){
+console.log("OCEAN Backend Connected:",data);
+})
+.catch(function(error){
+console.error("OCEAN Backend Connection Error:",error);
+});
+
 function $(id){
 return document.getElementById(id);
 }

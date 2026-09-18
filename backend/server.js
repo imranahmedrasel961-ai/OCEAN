@@ -537,28 +537,7 @@ app.put(
 app.patch(
   "/api/restaurants/:id/approve",
   (req, res) => {
-    const restaurant =
-      getRestaurant(req.params.id);
-
-    if (!restaurant) {
-      return res.status(404).json({
-        status: "error",
-        message: "Restaurant not found"
-      });
-    }
-
-    restaurant.status = "approved";
-    restaurant.updatedAt = now();
-
-    res.json({
-      status: "success",
-      message: "Restaurant approved",
-      restaurant
-    });
-  }
-);
-
-// ==================================================
+ // ==================================================
 // MENU MODULE
 // ==================================================
 
@@ -567,5 +546,261 @@ app.post(
   "/api/restaurants/:restaurantId/menu",
   (req, res) => {
     try {
-      const restaurant =
-        getRestaurant
+      const restaurant = getRestaurant(req.params.restaurantId);
+
+      if (!restaurant) {
+        return res.status(404).json({
+          status: "error",
+          message: "Restaurant not found"
+        });
+      }
+
+      const {
+        name,
+        description,
+        price,
+        category,
+        image,
+        available
+      } = req.body;
+
+      if (!name || price === undefined) {
+        return res.status(400).json({
+          status: "error",
+          message: "Menu item name and price are required"
+        });
+      }
+
+      const menuItem = {
+        id: id("menu"),
+        restaurantId: restaurant.id,
+        name,
+        description: description || "",
+        price: Number(price),
+        category: category || "Other",
+        image: image || "",
+        available: available !== false,
+        createdAt: now(),
+        updatedAt: now()
+      };
+
+      db.menuItems.push(menuItem);
+
+      res.status(201).json({
+        status: "success",
+        message: "Menu item added",
+        menuItem
+      });
+
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Failed to add menu item",
+        error: error.message
+      });
+    }
+  }
+);
+
+// GET RESTAURANT MENU
+app.get(
+  "/api/restaurants/:restaurantId/menu",
+  (req, res) => {
+    try {
+      const restaurant = getRestaurant(req.params.restaurantId);
+
+      if (!restaurant) {
+        return res.status(404).json({
+          status: "error",
+          message: "Restaurant not found"
+        });
+      }
+
+      const menu = db.menuItems.filter(
+        item => item.restaurantId === restaurant.id
+      );
+
+      res.json({
+        status: "success",
+        restaurantId: restaurant.id,
+        restaurantName: restaurant.name,
+        count: menu.length,
+        menu
+      });
+
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Failed to get menu",
+        error: error.message
+      });
+    }
+  }
+);
+
+// GET SINGLE MENU ITEM
+app.get(
+  "/api/menu/:menuItemId",
+  (req, res) => {
+    try {
+      const menuItem = db.menuItems.find(
+        item => item.id === req.params.menuItemId
+      );
+
+      if (!menuItem) {
+        return res.status(404).json({
+          status: "error",
+          message: "Menu item not found"
+        });
+      }
+
+      res.json({
+        status: "success",
+        menuItem
+      });
+
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Failed to get menu item",
+        error: error.message
+      });
+    }
+  }
+);
+
+// UPDATE MENU ITEM
+app.put(
+  "/api/menu/:menuItemId",
+  (req, res) => {
+    try {
+      const menuItem = db.menuItems.find(
+        item => item.id === req.params.menuItemId
+      );
+
+      if (!menuItem) {
+        return res.status(404).json({
+          status: "error",
+          message: "Menu item not found"
+        });
+      }
+
+      const {
+        name,
+        description,
+        price,
+        category,
+        image,
+        available
+      } = req.body;
+
+      if (name !== undefined) {
+        menuItem.name = name;
+      }
+
+      if (description !== undefined) {
+        menuItem.description = description;
+      }
+
+      if (price !== undefined) {
+        menuItem.price = Number(price);
+      }
+
+      if (category !== undefined) {
+        menuItem.category = category;
+      }
+
+      if (image !== undefined) {
+        menuItem.image = image;
+      }
+
+      if (available !== undefined) {
+        menuItem.available = Boolean(available);
+      }
+
+      menuItem.updatedAt = now();
+
+      res.json({
+        status: "success",
+        message: "Menu item updated",
+        menuItem
+      });
+
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Failed to update menu item",
+        error: error.message
+      });
+    }
+  }
+);
+
+// DELETE MENU ITEM
+app.delete(
+  "/api/menu/:menuItemId",
+  (req, res) => {
+    try {
+      const index = db.menuItems.findIndex(
+        item => item.id === req.params.menuItemId
+      );
+
+      if (index === -1) {
+        return res.status(404).json({
+          status: "error",
+          message: "Menu item not found"
+        });
+      }
+
+      const deletedItem = db.menuItems.splice(index, 1)[0];
+
+      res.json({
+        status: "success",
+        message: "Menu item deleted",
+        menuItem: deletedItem
+      });
+
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Failed to delete menu item",
+        error: error.message
+      });
+    }
+  }
+);
+
+// TOGGLE MENU ITEM AVAILABILITY
+app.patch(
+  "/api/menu/:menuItemId/availability",
+  (req, res) => {
+    try {
+      const menuItem = db.menuItems.find(
+        item => item.id === req.params.menuItemId
+      );
+
+      if (!menuItem) {
+        return res.status(404).json({
+          status: "error",
+          message: "Menu item not found"
+        });
+      }
+
+      menuItem.available = !menuItem.available;
+      menuItem.updatedAt = now();
+
+      res.json({
+        status: "success",
+        message: "Menu availability updated",
+        menuItem
+      });
+
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Failed to update menu availability",
+        error: error.message
+      });
+    }
+  }
+);   

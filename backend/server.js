@@ -760,4 +760,338 @@ app.get("/api/restaurants/:restaurantId/menu", (req, res) => {
     restaurantId: restaurant.id,
     menu
   });
+});// ==================================================
+// ORDER MODULE
+// ==================================================
+
+function getOrderById(orderId) {
+  return db.orders.find(order => order.id === orderId);
+}
+
+// CREATE ORDER
+app.post("/api/orders", (req, res) => {
+  try {
+    const {
+      customerId,
+      restaurantId,
+      items,
+      deliveryAddress,
+      paymentMethod
+    } = req.body;
+
+    if (!customerId) {
+      return res.status(400).json({
+        status: "error",
+        message: "customerId is required"
+      });
+    }
+
+    if (!restaurantId) {
+      return res.status(400).json({
+        status: "error",
+        message: "restaurantId is required"
+      });
+    }
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "Order items are required"
+      });
+    }
+
+    if (!deliveryAddress) {
+      return res.status(400).json({
+        status: "error",
+        message: "deliveryAddress is required"
+      });
+    }
+
+    let subtotal = 0;
+
+    const orderItems = items.map(item => {
+      const quantity = Number(item.quantity) || 1;
+      const price = Number(item.price) || 0;
+      const itemTotal = price * quantity;
+
+      subtotal += itemTotal;
+
+      return {
+        menuItemId: item.menuItemId || null,
+        name: item.name || "Food Item",
+        price: price,
+        quantity: quantity,
+        total: itemTotal
+      };
+    });
+
+    const deliveryFee = 300;
+    const serviceFee = Math.round(subtotal * 0.05);
+    const total = subtotal + deliveryFee + serviceFee;
+
+    const order = {
+      id: createId("order"),
+      customerId,
+      restaurantId,
+      items: orderItems,
+      subtotal,
+      deliveryFee,
+      serviceFee,
+      total,
+      paymentMethod: paymentMethod || "COD",
+      paymentStatus:
+        paymentMethod === "COD" ? "pending" : "pending",
+      orderStatus: "placed",
+      deliveryAddress,
+      riderId: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.orders.push(order);
+
+    db.notifications.push({
+      id: createId("notification"),
+      userId: customerId,
+      type: "order",
+      message: "Your order has been placed successfully.",
+      orderId: order.id,
+      createdAt: new Date().toISOString(),
+      read: false
+    });
+
+    res.status(201).json({
+      status: "success",
+      message: "Order created successfully",
+      order
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Failed to create order",
+      error: error.message
+    });
+  }
+});
+
+
+// ==================================================
+// GET ALL ORDERS
+// ==================================================
+
+app.get("/api/orders", (req, res) => {
+  res.json({
+    status: "success",
+    count: db.orders.length,
+    orders: db.orders
+  });
+});
+
+
+// ==================================================
+// GET SINGLE ORDER
+// ==================================================
+
+app.get("/api/orders/:orderId", (req, res) => {
+  const order = getOrderById(req.params.orderId);
+
+  if (!order) {
+    return res.status(404).json({
+      status: "error",
+      message: "Order not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    order
+  });
+});
+
+
+// ==================================================
+// UPDATE ORDER STATUS
+// ==================================================
+
+app.patch("/api/orders/:orderId/status", (req, res) => {
+  const order = getOrderById(req.params.orderId);
+
+  if (!order) {
+    return res.status(404).json({
+      status: "error",
+      message: "Order not found"
+    });
+  }
+
+  const { status } = req.body;
+
+  const allowedStatuses = [
+    "placed",
+    "confirmed",
+    "preparing",
+    "ready",
+    "picked_up",
+    "on_the_way",
+    "delivered",
+    "cancelled"
+  ];
+
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid order status",
+      allowedStatuses
+    });
+  }
+
+  order.orderStatus = status;
+  order.updatedAt = new Date().toISOString();
+
+  db.notifications.push({
+    id: createId("notification"),
+    userId: order.customerId,
+    type: "order_status",
+    message: "Order status updated to " + status,
+    orderId: order.id,
+    createdAt: new Date().toISOString(),
+    read: false
+  });
+
+  res.json({
+    status: "success",
+    message: "Order status updated",
+    order
+  });
+});
+
+
+// ==================================================
+// CANCEL ORDER
+// ==================================================
+
+app.patch("/api/orders/:orderId/cancel", (req, res) => {
+  const order = getOrderById(req.params.orderId);
+
+  if (!order) {
+    return res.status(404).json({
+      status: "error",
+      message: "Order not found"
+    });
+  }
+
+  if (
+    ["picked_up", "on_the_way", "delivered"].includes(
+      order.orderStatus
+    )
+  ) {
+    return res.status(400).json({
+      status: "error",
+      message: "Order cannot be cancelled at this stage"
+    });
+  }
+
+  order.orderStatus = "cancelled";
+  order.updatedAt = new Date().toISOString();
+
+  res.json({
+    status: "success",
+    message: "Order cancelled successfully",
+    order
+  });
+});
+
+
+// ==================================================
+// CUSTOMER ORDERS
+// ==================================================
+
+app.get("/api/customers/:customerId/orders", (req, res) => {
+  const orders = db.orders.filter(
+    order => order.customerId === req.params.customerId
+  );
+
+  res.json({
+    status: "success",
+    count: orders.length,
+    orders
+  });
+});
+
+
+// ==================================================
+// RESTAURANT ORDERS
+// ==================================================
+
+app.get("/api/restaurants/:restaurantId/orders", (req, res) => {
+  const orders = db.orders.filter(
+    order => order.restaurantId === req.params.restaurantId
+  );
+
+  res.json({
+    status: "success",
+    count: orders.length,
+    orders
+  });
+});
+
+
+// ==================================================
+// RIDER ORDERS
+// ==================================================
+
+app.get("/api/riders/:riderId/orders", (req, res) => {
+  const orders = db.orders.filter(
+    order => order.riderId === req.params.riderId
+  );
+
+  res.json({
+    status: "success",
+    count: orders.length,
+    orders
+  });
+});
+
+
+// ==================================================
+// ASSIGN RIDER TO ORDER
+// ==================================================
+
+app.patch("/api/orders/:orderId/assign-rider", (req, res) => {
+  const order = getOrderById(req.params.orderId);
+
+  if (!order) {
+    return res.status(404).json({
+      status: "error",
+      message: "Order not found"
+    });
+  }
+
+  const { riderId } = req.body;
+
+  if (!riderId) {
+    return res.status(400).json({
+      status: "error",
+      message: "riderId is required"
+    });
+  }
+
+  order.riderId = riderId;
+  order.updatedAt = new Date().toISOString();
+
+  db.notifications.push({
+    id: createId("notification"),
+    userId: order.customerId,
+    type: "rider_assigned",
+    message: "A delivery rider has been assigned to your order.",
+    orderId: order.id,
+    createdAt: new Date().toISOString(),
+    read: false
+  });
+
+  res.json({
+    status: "success",
+    message: "Rider assigned successfully",
+    order
+  });
 });

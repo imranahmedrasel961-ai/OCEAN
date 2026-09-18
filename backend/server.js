@@ -1082,4 +1082,735 @@ app.post("/api/riders/register", (req, res) => {
       );
 
     if (existing) {
-      return
+      return     const rider = {
+      id: createId("RID"),
+      name: String(name).trim(),
+      email: cleanEmail,
+      phone: String(phone).trim(),
+      vehicleType: vehicleType || "bicycle",
+      vehicleNumber: vehicleNumber || "",
+      status: "pending",
+      online: false,
+      available: false,
+      currentOrderId: null,
+      totalDeliveries: 0,
+      totalEarnings: 0,
+      rating: 0,
+      createdAt: now(),
+      updatedAt: now()
+    };
+
+    db.riders.push(rider);
+
+    res.status(201).json({
+      status: "success",
+      message: "Rider registered successfully",
+      rider
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Rider registration failed",
+      error: error.message
+    });
+  }
+});
+
+// ==================================================
+// RIDER LOGIN
+// ==================================================
+
+app.post("/api/riders/login", (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      status: "error",
+      message: "Email is required"
+    });
+  }
+
+  const rider = db.riders.find(
+    item =>
+      item.email ===
+      String(email).trim().toLowerCase()
+  );
+
+  if (!rider) {
+    return res.status(404).json({
+      status: "error",
+      message: "Rider not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    message: "Rider login successful",
+    rider
+  });
+});
+
+// ==================================================
+// ALL RIDERS
+// ==================================================
+
+app.get("/api/riders", (req, res) => {
+  res.json({
+    status: "success",
+    count: db.riders.length,
+    riders: db.riders
+  });
+});
+
+// ==================================================
+// SINGLE RIDER
+// ==================================================
+
+app.get("/api/riders/:id", (req, res) => {
+  const rider = getRider(req.params.id);
+
+  if (!rider) {
+    return res.status(404).json({
+      status: "error",
+      message: "Rider not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    rider
+  });
+});
+
+// ==================================================
+// UPDATE RIDER PROFILE
+// ==================================================
+
+app.put("/api/riders/:id", (req, res) => {
+  const rider = getRider(req.params.id);
+
+  if (!rider) {
+    return res.status(404).json({
+      status: "error",
+      message: "Rider not found"
+    });
+  }
+
+  const {
+    name,
+    phone,
+    vehicleType,
+    vehicleNumber
+  } = req.body;
+
+  if (name !== undefined) {
+    rider.name = String(name).trim();
+  }
+
+  if (phone !== undefined) {
+    rider.phone = String(phone).trim();
+  }
+
+  if (vehicleType !== undefined) {
+    rider.vehicleType = vehicleType;
+  }
+
+  if (vehicleNumber !== undefined) {
+    rider.vehicleNumber = vehicleNumber;
+  }
+
+  rider.updatedAt = now();
+
+  res.json({
+    status: "success",
+    message: "Rider profile updated",
+    rider
+  });
+});
+
+// ==================================================
+// APPROVE RIDER
+// ==================================================
+
+app.patch("/api/riders/:id/approve", (req, res) => {
+  const rider = getRider(req.params.id);
+
+  if (!rider) {
+    return res.status(404).json({
+      status: "error",
+      message: "Rider not found"
+    });
+  }
+
+  rider.status = "approved";
+  rider.updatedAt = now();
+
+  res.json({
+    status: "success",
+    message: "Rider approved successfully",
+    rider
+  });
+});
+
+// ==================================================
+// RIDER ONLINE / OFFLINE
+// ==================================================
+
+app.patch("/api/riders/:id/online", (req, res) => {
+  const rider = getRider(req.params.id);
+
+  if (!rider) {
+    return res.status(404).json({
+      status: "error",
+      message: "Rider not found"
+    });
+  }
+
+  if (rider.status !== "approved") {
+    return res.status(403).json({
+      status: "error",
+      message: "Rider must be approved first"
+    });
+  }
+
+  const { online } = req.body;
+
+  if (typeof online !== "boolean") {
+    return res.status(400).json({
+      status: "error",
+      message: "online must be true or false"
+    });
+  }
+
+  rider.online = online;
+  rider.available =
+    online && !rider.currentOrderId;
+
+  rider.updatedAt = now();
+
+  res.json({
+    status: "success",
+    message: online
+      ? "Rider is now online"
+      : "Rider is now offline",
+    rider
+  });
+});
+
+// ==================================================
+// AVAILABLE RIDERS
+// ==================================================
+
+app.get("/api/riders/available/list", (req, res) => {
+  const riders = db.riders.filter(
+    rider =>
+      rider.status === "approved" &&
+      rider.online === true &&
+      rider.available === true &&
+      !rider.currentOrderId
+  );
+
+  res.json({
+    status: "success",
+    count: riders.length,
+    riders
+  });
+});
+
+// ==================================================
+// ASSIGN ORDER TO RIDER
+// ==================================================
+
+app.patch(
+  "/api/orders/:orderId/assign-rider",
+  (req, res) => {
+    const order = getOrder(req.params.orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        status: "error",
+        message: "Order not found"
+      });
+    }
+
+    const { riderId } = req.body;
+
+    if (!riderId) {
+      return res.status(400).json({
+        status: "error",
+        message: "riderId is required"
+      });
+    }
+
+    const rider = getRider(riderId);
+
+    if (!rider) {
+      return res.status(404).json({
+        status: "error",
+        message: "Rider not found"
+      });
+    }
+
+    if (rider.status !== "approved") {
+      return res.status(400).json({
+        status: "error",
+        message: "Rider is not approved"
+      });
+    }
+
+    if (!rider.online) {
+      return res.status(400).json({
+        status: "error",
+        message: "Rider is offline"
+      });
+    }
+
+    if (rider.currentOrderId) {
+      return res.status(400).json({
+        status: "400",
+        message: "Rider already has an active order"
+      });
+    }
+
+    if (
+      ["delivered", "cancelled"].includes(
+        order.orderStatus
+      )
+    ) {
+      return res.status(400).json({
+        status: "error",
+        message: "Order is already completed or cancelled"
+      });
+    }
+
+    order.riderId = rider.id;
+
+    rider.currentOrderId = order.id;
+    rider.available = false;
+    rider.updatedAt = now();
+
+    order.orderStatus = "ready";
+    order.updatedAt = now();
+
+    addNotification(
+      order.customerId,
+      "rider_assigned",
+      "A delivery rider has been assigned to your order.",
+      order.id
+    );
+
+    res.json({
+      status: "success",
+      message: "Rider assigned successfully",
+      order,
+      rider
+    });
+  }
+);
+
+// ==================================================
+// RIDER ACCEPT ORDER
+// ==================================================
+
+app.patch(
+  "/api/riders/:riderId/orders/:orderId/accept",
+  (req, res) => {
+    const rider = getRider(req.params.riderId);
+    const order = getOrder(req.params.orderId);
+
+    if (!rider) {
+      return res.status(404).json({
+        status: "error",
+        message: "Rider not found"
+      });
+    }
+
+    if (!order) {
+      return res.status(404).json({
+        status: "error",
+        message: "Order not found"
+      });
+    }
+
+    if (order.riderId !== rider.id) {
+      return res.status(403).json({
+        status: "error",
+        message: "This order is not assigned to this rider"
+      });
+    }
+
+    if (rider.currentOrderId !== order.id) {
+      rider.currentOrderId = order.id;
+    }
+
+    rider.available = false;
+
+    order.orderStatus = "confirmed";
+    order.updatedAt = now();
+    rider.updatedAt = now();
+
+    addNotification(
+      order.customerId,
+      "rider_accept",
+      "Your rider has accepted the delivery.",
+      order.id
+    );
+
+    res.json({
+      status: "success",
+      message: "Order accepted by rider",
+      order,
+      rider
+    });
+  }
+);
+
+// ==================================================
+// RIDER PICKUP ORDER
+// ==================================================
+
+app.patch(
+  "/api/riders/:riderId/orders/:orderId/pickup",
+  (req, res) => {
+    const rider = getRider(req.params.riderId);
+    const order = getOrder(req.params.orderId);
+
+    if (!rider || !order) {
+      return res.status(404).json({
+        status: "error",
+        message: "Rider or order not found"
+      });
+    }
+
+    if (order.riderId !== rider.id) {
+      return res.status(403).json({
+        status: "error",
+        message: "Order is not assigned to this rider"
+      });
+    }
+
+    order.orderStatus = "picked_up";
+    order.updatedAt = now();
+
+    addNotification(
+      order.customerId,
+      "order_pickup",
+      "Your order has been picked up by the rider.",
+      order.id
+    );
+
+    res.json({
+      status: "success",
+      message: "Order picked up successfully",
+      order
+    });
+  }
+);
+
+// ==================================================
+// RIDER START DELIVERY
+// ==================================================
+
+app.patch(
+  "/api/riders/:riderId/orders/:orderId/start",
+  (req, res) => {
+    const rider = getRider(req.params.riderId);
+    const order = getOrder(req.params.orderId);
+
+    if (!rider || !order) {
+      return res.status(404).json({
+        status: "error",
+        message: "Rider or order not found"
+      });
+    }
+
+    if (order.riderId !== rider.id) {
+      return res.status(403).json({
+        status: "error",
+        message: "Order is not assigned to this rider"
+      });
+    }
+
+    if (order.orderStatus !== "picked_up") {
+      return res.status(400).json({
+        status: "error",
+        message: "Order must be picked up first"
+      });
+    }
+
+    order.orderStatus = "on_the_way";
+    order.updatedAt = now();
+
+    addNotification(
+      order.customerId,
+      "delivery_started",
+      "Your rider is on the way.",
+      order.id
+    );
+
+    res.json({
+      status: "success",
+      message: "Delivery started",
+      order
+    });
+  }
+);
+
+// ==================================================
+// RIDER COMPLETE DELIVERY
+// ==================================================
+
+app.patch(
+  "/api/riders/:riderId/orders/:orderId/deliver",
+  (req, res) => {
+    const rider = getRider(req.params.riderId);
+    const order = getOrder(req.params.orderId);
+
+    if (!rider || !order) {
+      return res.status(404).json({
+        status: "error",
+        message: "Rider or order not found"
+      });
+    }
+
+    if (order.riderId !== rider.id) {
+      return res.status(403).json({
+        status: "error",
+        message: "Order is not assigned to this rider"
+      });
+    }
+
+    if (
+      ![
+        "picked_up",
+        "on_the_way"
+      ].includes(order.orderStatus)
+    ) {
+      return res.status(400).json({
+        status: "error",
+        message:
+          "Order must be picked up or on the way"
+      });
+    }
+
+    order.orderStatus = "delivered";
+    order.updatedAt = now();
+
+    if (order.paymentMethod === "COD") {
+      order.paymentStatus = "paid";
+    }
+
+    const riderEarning =
+      Number(order.deliveryFee || 0);
+
+    rider.totalDeliveries =
+      Number(rider.totalDeliveries || 0) + 1;
+
+    rider.totalEarnings =
+      Number(rider.totalEarnings || 0) +
+      riderEarning;
+
+    rider.currentOrderId = null;
+    rider.available =
+      rider.online === true;
+
+    rider.updatedAt = now();
+
+    addNotification(
+      order.customerId,
+      "order_delivered",
+      "Your order has been delivered successfully.",
+      order.id
+    );
+
+    res.json({
+      status: "success",
+      message: "Order delivered successfully",
+      order,
+      riderEarning,
+      rider
+    });
+  }
+);
+
+// ==================================================
+// RIDER ACTIVE ORDER
+// ==================================================
+
+app.get(
+  "/api/riders/:riderId/active-order",
+  (req, res) => {
+    const rider = getRider(req.params.riderId);
+
+    if (!rider) {
+      return res.status(404).json({
+        status: "error",
+        message: "Rider not found"
+      });
+    }
+
+    if (!rider.currentOrderId) {
+      return res.json({
+        status: "success",
+        active: false,
+        order: null
+      });
+    }
+
+    const order =
+      getOrder(rider.currentOrderId);
+
+    res.json({
+      status: "success",
+      active: !!order,
+      order: order || null
+    });
+  }
+);
+
+// ==================================================
+// RIDER ORDER HISTORY
+// ==================================================
+
+app.get(
+  "/api/riders/:riderId/orders",
+  (req, res) => {
+    const rider = getRider(req.params.riderId);
+
+    if (!rider) {
+      return res.status(404).json({
+        status: "error",
+        message: "Rider not found"
+      });
+    }
+
+    const orders = db.orders.filter(
+      order =>
+        order.riderId === rider.id
+    );
+
+    res.json({
+      status: "success",
+      count: orders.length,
+      orders
+    });
+  }
+);
+
+// ==================================================
+// RIDER EARNINGS
+// ==================================================
+
+app.get(
+  "/api/riders/:riderId/earnings",
+  (req, res) => {
+    const rider = getRider(req.params.riderId);
+
+    if (!rider) {
+      return res.status(404).json({
+        status: "error",
+        message: "Rider not found"
+      });
+    }
+
+    const riderOrders = db.orders.filter(
+      order =>
+        order.riderId === rider.id &&
+        order.orderStatus === "delivered"
+    );
+
+    const earnings =
+      riderOrders.reduce(
+        (sum, order) =>
+          sum + Number(order.deliveryFee || 0),
+        0
+      );
+
+    res.json({
+      status: "success",
+      riderId: rider.id,
+      totalDeliveries: riderOrders.length,
+      totalEarnings: earnings,
+      orders: riderOrders
+    });
+  }
+);
+
+// ==================================================
+// NOTIFICATION MODULE
+// ==================================================
+
+app.get(
+  "/api/notifications/:userId",
+  (req, res) => {
+    const notifications =
+      db.notifications
+        .filter(
+          notification =>
+            notification.userId ===
+            req.params.userId
+        )
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt) -
+            new Date(a.createdAt)
+        );
+
+    res.json({
+      status: "success",
+      count: notifications.length,
+      notifications
+    });
+  }
+);
+
+// MARK NOTIFICATION AS READ
+app.patch(
+  "/api/notifications/:id/read",
+  (req, res) => {
+    const notification =
+      db.notifications.find(
+        item =>
+          item.id === req.params.id
+      );
+
+    if (!notification) {
+      return res.status(404).json({
+        status: "error",
+        message: "Notification not found"
+      });
+    }
+
+    notification.read = true;
+
+    res.json({
+      status: "success",
+      message: "Notification marked as read",
+      notification
+    });
+  }
+);
+
+// ==================================================
+// GLOBAL ERROR HANDLER
+// ==================================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    status: "error",
+    message: "API endpoint not found",
+    path: req.originalUrl
+  });
+});
+
+// ==================================================
+// START SERVER
+// ==================================================
+
+app.listen(PORT, () => {
+  console.log(
+    "OCEAN Delivery Platform backend running on port " +
+    PORT
+  );
+});

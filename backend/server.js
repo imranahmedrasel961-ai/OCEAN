@@ -333,4 +333,431 @@ app.post("/api/orders", (req, res) => {
     restaurant.totalOrders =
       Number(restaurant.totalOrders || 0) + 1;
 
-    res.status(201
+        res.status(201).json({
+      status: "success",
+      message: "Order created successfully",
+      order
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Order creation failed"
+    });
+  }
+});
+
+// ==================================================
+// GET ALL ORDERS
+// ==================================================
+
+app.get("/api/orders", (req, res) => {
+  res.json({
+    status: "success",
+    orders: db.orders
+  });
+});
+
+// ==================================================
+// GET CUSTOMER ORDERS
+// ==================================================
+
+app.get("/api/orders/customer/:customerId", (req, res) => {
+  const orders = db.orders.filter(
+    order => order.customerId === req.params.customerId
+  );
+
+  res.json({
+    status: "success",
+    orders
+  });
+});
+
+// ==================================================
+// GET SINGLE ORDER
+// ==================================================
+
+app.get("/api/orders/:id", (req, res) => {
+  const order = db.orders.find(
+    order => order.id === req.params.id
+  );
+
+  if (!order) {
+    return res.status(404).json({
+      status: "error",
+      message: "Order not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    order
+  });
+});
+
+// ==================================================
+// UPDATE ORDER STATUS
+// ==================================================
+
+app.put("/api/orders/:id/status", (req, res) => {
+  const order = db.orders.find(
+    order => order.id === req.params.id
+  );
+
+  if (!order) {
+    return res.status(404).json({
+      status: "error",
+      message: "Order not found"
+    });
+  }
+
+  const { status } = req.body;
+
+  const allowedStatuses = [
+    "pending",
+    "confirmed",
+    "preparing",
+    "ready",
+    "picked_up",
+    "on_the_way",
+    "delivered",
+    "cancelled"
+  ];
+
+  if (!status || !allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid order status"
+    });
+  }
+
+  order.status = status;
+  order.updatedAt = now();
+
+  db.notifications.push({
+    id: id("NOT"),
+    userId: order.customerId,
+    type: "order_status",
+    message: "Your order status is now " + status,
+    orderId: order.id,
+    createdAt: now(),
+    read: false
+  });
+
+  res.json({
+    status: "success",
+    message: "Order status updated",
+    order
+  });
+});
+
+// ==================================================
+// CANCEL ORDER
+// ==================================================
+
+app.put("/api/orders/:id/cancel", (req, res) => {
+  const order = db.orders.find(
+    order => order.id === req.params.id
+  );
+
+  if (!order) {
+    return res.status(404).json({
+      status: "error",
+      message: "Order not found"
+    });
+  }
+
+  if (
+    order.status === "delivered" ||
+    order.status === "cancelled"
+  ) {
+    return res.status(400).json({
+      status: "error",
+      message: "Order cannot be cancelled"
+    });
+  }
+
+  order.status = "cancelled";
+  order.updatedAt = now();
+
+  res.json({
+    status: "success",
+    message: "Order cancelled successfully",
+    order
+  });
+});
+
+// ==================================================
+// RESTAURANT MODULE
+// ==================================================
+
+// REGISTER RESTAURANT
+app.post("/api/restaurants/register", (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      phone,
+      address,
+      ownerName
+    } = req.body;
+
+    if (!name || !email || !phone) {
+      return res.status(400).json({
+        status: "error",
+        message: "Restaurant name, email and phone are required"
+      });
+    }
+
+    const cleanEmail = String(email)
+      .trim()
+      .toLowerCase();
+
+    const existing = db.restaurants.find(
+      restaurant => restaurant.email === cleanEmail
+    );
+
+    if (existing) {
+      return res.status(409).json({
+        status: "error",
+        message: "Restaurant email already registered"
+      });
+    }
+
+    const restaurant = {
+      id: id("RES"),
+      name: String(name).trim(),
+      email: cleanEmail,
+      phone: String(phone).trim(),
+      address: address || "",
+      ownerName: ownerName || "",
+      status: "pending",
+      isOpen: false,
+      totalOrders: 0,
+      rating: 0,
+      createdAt: now(),
+      updatedAt: now()
+    };
+
+    db.restaurants.push(restaurant);
+
+    res.status(201).json({
+      status: "success",
+      message: "Restaurant registered successfully",
+      restaurant
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Restaurant registration failed"
+    });
+  }
+});
+
+// ==================================================
+// GET ALL RESTAURANTS
+// ==================================================
+
+app.get("/api/restaurants", (req, res) => {
+  res.json({
+    status: "success",
+    restaurants: db.restaurants
+  });
+});
+
+// ==================================================
+// GET SINGLE RESTAURANT
+// ==================================================
+
+app.get("/api/restaurants/:id", (req, res) => {
+  const restaurant = db.restaurants.find(
+    restaurant => restaurant.id === req.params.id
+  );
+
+  if (!restaurant) {
+    return res.status(404).json({
+      status: "error",
+      message: "Restaurant not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    restaurant
+  });
+});
+
+// ==================================================
+// UPDATE RESTAURANT
+// ==================================================
+
+app.put("/api/restaurants/:id", (req, res) => {
+  const restaurant = db.restaurants.find(
+    restaurant => restaurant.id === req.params.id
+  );
+
+  if (!restaurant) {
+    return res.status(404).json({
+      status: "error",
+      message: "Restaurant not found"
+    });
+  }
+
+  const {
+    name,
+    phone,
+    address,
+    ownerName
+  } = req.body;
+
+  if (name) {
+    restaurant.name = String(name).trim();
+  }
+
+  if (phone) {
+    restaurant.phone = String(phone).trim();
+  }
+
+  if (address !== undefined) {
+    restaurant.address = address;
+  }
+
+  if (ownerName !== undefined) {
+    restaurant.ownerName = ownerName;
+  }
+
+  restaurant.updatedAt = now();
+
+  res.json({
+    status: "success",
+    message: "Restaurant updated successfully",
+    restaurant
+  });
+});
+
+// ==================================================
+// RESTAURANT OPEN / CLOSE
+// ==================================================
+
+app.put("/api/restaurants/:id/status", (req, res) => {
+  const restaurant = db.restaurants.find(
+    restaurant => restaurant.id === req.params.id
+  );
+
+  if (!restaurant) {
+    return res.status(404).json({
+      status: "error",
+      message: "Restaurant not found"
+    });
+  }
+
+  const { isOpen } = req.body;
+
+  if (typeof isOpen !== "boolean") {
+    return res.status(400).json({
+      status: "error",
+      message: "isOpen must be true or false"
+    });
+  }
+
+  restaurant.isOpen = isOpen;
+  restaurant.updatedAt = now();
+
+  res.json({
+    status: "success",
+    message: isOpen
+      ? "Restaurant is now open"
+      : "Restaurant is now closed",
+    restaurant
+  });
+});
+
+// ==================================================
+// MENU MODULE
+// ==================================================
+
+// ADD MENU ITEM
+app.post("/api/restaurants/:restaurantId/menu", (req, res) => {
+  try {
+    const restaurant = db.restaurants.find(
+      restaurant => restaurant.id === req.params.restaurantId
+    );
+
+    if (!restaurant) {
+      return res.status(404).json({
+        status: "error",
+        message: "Restaurant not found"
+      });
+    }
+
+    const {
+      name,
+      description,
+      price,
+      category,
+      image
+    } = req.body;
+
+    if (!name || price === undefined) {
+      return res.status(400).json({
+        status: "error",
+        message: "Menu name and price are required"
+      });
+    }
+
+    const menuItem = {
+      id: id("MENU"),
+      restaurantId: restaurant.id,
+      name: String(name).trim(),
+      description: description || "",
+      price: Number(price),
+      category: category || "Other",
+      image: image || "",
+      available: true,
+      createdAt: now(),
+      updatedAt: now()
+    };
+
+    db.menuItems.push(menuItem);
+
+    res.status(201).json({
+      status: "success",
+      message: "Menu item added successfully",
+      menuItem
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Menu item creation failed"
+    });
+  }
+});
+
+// ==================================================
+// GET RESTAURANT MENU
+// ==================================================
+
+app.get("/api/restaurants/:restaurantId/menu", (req, res) => {
+  const restaurant = db.restaurants.find(
+    restaurant => restaurant.id === req.params.restaurantId
+  );
+
+  if (!restaurant) {
+    return res.status(404).json({
+      status: "error",
+      message: "Restaurant not found"
+    });
+  }
+
+  const menu = db.menuItems.filter(
+    item => item.restaurantId === restaurant.id
+  );
+
+  res.json({
+    status: "success",
+    restaurantId: restaurant.id,
+    menu
+  });
+});

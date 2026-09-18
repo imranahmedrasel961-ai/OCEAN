@@ -478,3 +478,106 @@ app.get("/api/orders/:orderId", (req, res) => {
     order
   });
 });
+// ==================================================
+// RESTAURANT MODULE
+// PART 1 — REGISTER + LIST + DETAILS
+// ==================================================
+
+// Register Restaurant
+app.post("/api/restaurants", (req, res) => {
+  const {
+    name,
+    ownerName,
+    phone,
+    address,
+    email
+  } = req.body;
+
+  if (!name || !ownerName || !phone || !address) {
+    return res.status(400).json({
+      status: "error",
+      message: "name, ownerName, phone and address are required"
+    });
+  }
+
+  const restaurant = {
+    id: id("rest"),
+    name,
+    ownerName,
+    phone,
+    email: email || "",
+    address,
+    status: "pending",
+    isOpen: false,
+    rating: 0,
+    totalOrders: 0,
+    createdAt: now()
+  };
+
+  db.restaurants.push(restaurant);
+
+  res.status(201).json({
+    status: "success",
+    message: "Restaurant registered successfully",
+    restaurant
+  });
+});
+
+
+// Get All Restaurants
+app.get("/api/restaurants", (req, res) => {
+  res.json({
+    status: "success",
+    count: db.restaurants.length,
+    restaurants: db.restaurants
+  });
+});
+
+
+// Get Single Restaurant
+app.get("/api/restaurants/:id", (req, res) => {
+  const restaurant = db.restaurants.find(
+    r => r.id === req.params.id
+  );
+
+  if (!restaurant) {
+    return res.status(404).json({
+      status: "error",
+      message: "Restaurant not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    restaurant
+  });
+});
+
+
+// Update Restaurant Status
+app.patch("/api/restaurants/:id/status", (req, res) => {
+  const restaurant = db.restaurants.find(
+    r => r.id === req.params.id
+  );
+
+  if (!restaurant) {
+    return res.status(404).json({
+      status: "error",
+      message: "Restaurant not found"
+    });
+  }
+
+  if (req.body.status) {
+    restaurant.status = req.body.status;
+  }
+
+  if (typeof req.body.isOpen === "boolean") {
+    restaurant.isOpen = req.body.isOpen;
+  }
+
+  res.json({
+    status: "success",
+    message: "Restaurant status updated",
+    restaurant
+  });
+});

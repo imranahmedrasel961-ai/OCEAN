@@ -10,8 +10,9 @@ app.use(express.json());
 
 // ==================================================
 // OCEAN DELIVERY PLATFORM
-// BIG BUILD BACKEND
-// CUSTOMER + ORDER + RESTAURANT + RIDER + PAYMENT
+// BIG BUILD BACKEND v1
+// CUSTOMER + ORDER + RESTAURANT + RIDER
+// PAYMENT + REFUND + ADMIN + NOTIFICATION
 // ==================================================
 
 const db = {
@@ -34,10 +35,6 @@ function createId(prefix) {
   return prefix + "_" + crypto.randomBytes(8).toString("hex");
 }
 
-function id(prefix) {
-  return createId(prefix);
-}
-
 function now() {
   return new Date().toISOString();
 }
@@ -56,8 +53,49 @@ function safeUser(user) {
     phone: user.phone || null,
     role: user.role,
     address: user.address || "",
-    createdAt: user.createdAt
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
   };
+}
+
+function getOrder(orderId) {
+  return db.orders.find(order => order.id === orderId);
+}
+
+function getRestaurant(restaurantId) {
+  return db.restaurants.find(
+    restaurant => restaurant.id === restaurantId
+  );
+}
+
+function getCustomer(customerId) {
+  return db.users.find(
+    user =>
+      user.id === customerId &&
+      user.role === "customer"
+  );
+}
+
+function getRider(riderId) {
+  return db.riders.find(
+    rider => rider.id === riderId
+  );
+}
+
+function addNotification(userId, type, message, orderId = null) {
+  const notification = {
+    id: createId("NOT"),
+    userId,
+    type,
+    message,
+    orderId,
+    read: false,
+    createdAt: now()
+  };
+
+  db.notifications.push(notification);
+
+  return notification;
 }
 
 // ==================================================
@@ -68,7 +106,7 @@ app.get("/", (req, res) => {
   res.json({
     status: "success",
     message: "OCEAN backend is running",
-    version: "Big Build"
+    version: "Big Build v1"
   });
 });
 
@@ -76,6 +114,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "success",
     service: "OCEAN Delivery Platform",
+    version: "Big Build v1",
     time: now()
   });
 });
@@ -96,8 +135,8 @@ app.get("/api/status", (req, res) => {
       orders: db.orders.length,
       riders: db.riders.length,
       payments: db.payments.length,
-      refunds: db.refunds.length,
       payouts: db.payouts.length,
+      refunds: db.refunds.length,
       notifications: db.notifications.length
     },
     time: now()
@@ -111,22 +150,30 @@ app.get("/api/status", (req, res) => {
 // CUSTOMER REGISTER
 app.post("/api/customers/register", (req, res) => {
   try {
-    const { name, email, phone, password, address } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      password,
+      address
+    } = req.body;
 
     if (!name || !email || !phone || !password) {
       return res.status(400).json({
         status: "error",
-        message: "Name, email, phone and password are required"
+        message:
+          "Name, email, phone and password are required"
       });
     }
 
-    const cleanEmail = String(email).trim().toLowerCase();
+    const cleanEmail =
+      String(email).trim().toLowerCase();
 
-    const existingUser = db.users.find(
+    const existing = db.users.find(
       user => user.email === cleanEmail
     );
 
-    if (existingUser) {
+    if (existing) {
       return res.status(409).json({
         status: "error",
         message: "Email already registered"
@@ -134,7 +181,7 @@ app.post("/api/customers/register", (req, res) => {
     }
 
     const customer = {
-      id: id("CUS"),
+      id: createId("CUS"),
       name: String(name).trim(),
       email: cleanEmail,
       phone: String(phone).trim(),
@@ -173,7 +220,8 @@ app.post("/api/customers/login", (req, res) => {
       });
     }
 
-    const cleanEmail = String(email).trim().toLowerCase();
+    const cleanEmail =
+      String(email).trim().toLowerCase();
 
     const customer = db.users.find(
       user =>
@@ -181,7 +229,10 @@ app.post("/api/customers/login", (req, res) => {
         user.role === "customer"
     );
 
-    if (!customer || customer.password !== String(password)) {
+    if (
+      !customer ||
+      customer.password !== String(password)
+    ) {
       return res.status(401).json({
         status: "error",
         message: "Invalid email or password"
@@ -202,13 +253,9 @@ app.post("/api/customers/login", (req, res) => {
   }
 });
 
-// GET CUSTOMER PROFILE
+// CUSTOMER PROFILE
 app.get("/api/customers/:id", (req, res) => {
-  const customer = db.users.find(
-    user =>
-      user.id === req.params.id &&
-      user.role === "customer"
-  );
+  const customer = getCustomer(req.params.id);
 
   if (!customer) {
     return res.status(404).json({
@@ -223,13 +270,9 @@ app.get("/api/customers/:id", (req, res) => {
   });
 });
 
-// UPDATE CUSTOMER PROFILE
+// UPDATE CUSTOMER
 app.put("/api/customers/:id", (req, res) => {
-  const customer = db.users.find(
-    user =>
-      user.id === req.params.id &&
-      user.role === "customer"
-  );
+  const customer = getCustomer(req.params.id);
 
   if (!customer) {
     return res.status(404).json({
@@ -238,10 +281,19 @@ app.put("/api/customers/:id", (req, res) => {
     });
   }
 
-  const { name, phone, address } = req.body;
+  const {
+    name,
+    phone,
+    address
+  } = req.body;
 
-  if (name) customer.name = String(name).trim();
-  if (phone) customer.phone = String(phone).trim();
+  if (name) {
+    customer.name = String(name).trim();
+  }
+
+  if (phone) {
+    customer.phone = String(phone).trim();
+  }
 
   if (address !== undefined) {
     customer.address = address;
@@ -257,241 +309,10 @@ app.put("/api/customers/:id", (req, res) => {
 });
 
 // ==================================================
-// ORDER MODULE
-// ==================================================
-
-// CREATE ORDER
-app.post("/api/orders", (req, res) => {
-  try {
-    const {
-      customerId,
-      restaurantId,
-      items,
-      total,
-      deliveryAddress,
-      paymentMethod = "COD"
-    } = req.body;
-
-    if (
-      !customerId ||
-      !restaurantId ||
-      !items ||
-      !Array.isArray(items) ||
-      items.length === 0 ||
-      total === undefined
-    ) {
-      return res.status(400).json({
-        status: "error",
-        message:
-          "customerId, restaurantId, items and total are required"
-      });
-    }
-
-    const customer = db.users.find(
-      user =>
-        user.id === customerId &&
-        user.role === "customer"
-    );
-
-    if (!customer) {
-      return res.status(404).json({
-        status: "error",
-        message: "Customer not found"
-      });
-    }
-
-    const restaurant = db.restaurants.find(
-      restaurant => restaurant.id === restaurantId
-    );
-
-    if (!restaurant) {
-      return res.status(404).json({
-        status: "error",
-        message: "Restaurant not found"
-      });
-    }
-
-    const order = {
-      id: id("ORD"),
-      customerId,
-      restaurantId,
-      riderId: null,
-      items,
-      total: Number(total),
-      deliveryAddress:
-        deliveryAddress || customer.address || "",
-      paymentMethod,
-      paymentStatus:
-        paymentMethod === "COD" ? "pending" : "pending",
-      status: "pending",
-      createdAt: now(),
-      updatedAt: now()
-    };
-
-    db.orders.push(order);
-
-    restaurant.totalOrders =
-      Number(restaurant.totalOrders || 0) + 1;
-
-        res.status(201).json({
-      status: "success",
-      message: "Order created successfully",
-      order
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: "Order creation failed"
-    });
-  }
-});
-
-// ==================================================
-// GET ALL ORDERS
-// ==================================================
-
-app.get("/api/orders", (req, res) => {
-  res.json({
-    status: "success",
-    orders: db.orders
-  });
-});
-
-// ==================================================
-// GET CUSTOMER ORDERS
-// ==================================================
-
-app.get("/api/orders/customer/:customerId", (req, res) => {
-  const orders = db.orders.filter(
-    order => order.customerId === req.params.customerId
-  );
-
-  res.json({
-    status: "success",
-    orders
-  });
-});
-
-// ==================================================
-// GET SINGLE ORDER
-// ==================================================
-
-app.get("/api/orders/:id", (req, res) => {
-  const order = db.orders.find(
-    order => order.id === req.params.id
-  );
-
-  if (!order) {
-    return res.status(404).json({
-      status: "error",
-      message: "Order not found"
-    });
-  }
-
-  res.json({
-    status: "success",
-    order
-  });
-});
-
-// ==================================================
-// UPDATE ORDER STATUS
-// ==================================================
-
-app.put("/api/orders/:id/status", (req, res) => {
-  const order = db.orders.find(
-    order => order.id === req.params.id
-  );
-
-  if (!order) {
-    return res.status(404).json({
-      status: "error",
-      message: "Order not found"
-    });
-  }
-
-  const { status } = req.body;
-
-  const allowedStatuses = [
-    "pending",
-    "confirmed",
-    "preparing",
-    "ready",
-    "picked_up",
-    "on_the_way",
-    "delivered",
-    "cancelled"
-  ];
-
-  if (!status || !allowedStatuses.includes(status)) {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid order status"
-    });
-  }
-
-  order.status = status;
-  order.updatedAt = now();
-
-  db.notifications.push({
-    id: id("NOT"),
-    userId: order.customerId,
-    type: "order_status",
-    message: "Your order status is now " + status,
-    orderId: order.id,
-    createdAt: now(),
-    read: false
-  });
-
-  res.json({
-    status: "success",
-    message: "Order status updated",
-    order
-  });
-});
-
-// ==================================================
-// CANCEL ORDER
-// ==================================================
-
-app.put("/api/orders/:id/cancel", (req, res) => {
-  const order = db.orders.find(
-    order => order.id === req.params.id
-  );
-
-  if (!order) {
-    return res.status(404).json({
-      status: "error",
-      message: "Order not found"
-    });
-  }
-
-  if (
-    order.status === "delivered" ||
-    order.status === "cancelled"
-  ) {
-    return res.status(400).json({
-      status: "error",
-      message: "Order cannot be cancelled"
-    });
-  }
-
-  order.status = "cancelled";
-  order.updatedAt = now();
-
-  res.json({
-    status: "success",
-    message: "Order cancelled successfully",
-    order
-  });
-});
-
-// ==================================================
 // RESTAURANT MODULE
 // ==================================================
 
-// REGISTER RESTAURANT
+// RESTAURANT REGISTER
 app.post("/api/restaurants/register", (req, res) => {
   try {
     const {
@@ -505,27 +326,29 @@ app.post("/api/restaurants/register", (req, res) => {
     if (!name || !email || !phone) {
       return res.status(400).json({
         status: "error",
-        message: "Restaurant name, email and phone are required"
+        message:
+          "Restaurant name, email and phone are required"
       });
     }
 
-    const cleanEmail = String(email)
-      .trim()
-      .toLowerCase();
+    const cleanEmail =
+      String(email).trim().toLowerCase();
 
     const existing = db.restaurants.find(
-      restaurant => restaurant.email === cleanEmail
+      restaurant =>
+        restaurant.email === cleanEmail
     );
 
     if (existing) {
       return res.status(409).json({
         status: "error",
-        message: "Restaurant email already registered"
+        message:
+          "Restaurant email already registered"
       });
     }
 
     const restaurant = {
-      id: id("RES"),
+      id: createId("RES"),
       name: String(name).trim(),
       email: cleanEmail,
       phone: String(phone).trim(),
@@ -543,37 +366,64 @@ app.post("/api/restaurants/register", (req, res) => {
 
     res.status(201).json({
       status: "success",
-      message: "Restaurant registered successfully",
+      message:
+        "Restaurant registered successfully",
       restaurant
     });
 
   } catch (error) {
     res.status(500).json({
       status: "error",
-      message: "Restaurant registration failed"
+      message:
+        "Restaurant registration failed"
     });
   }
 });
 
-// ==================================================
-// GET ALL RESTAURANTS
-// ==================================================
+// RESTAURANT LOGIN
+app.post("/api/restaurants/login", (req, res) => {
+  const { email } = req.body;
 
+  if (!email) {
+    return res.status(400).json({
+      status: "error",
+      message: "Email is required"
+    });
+  }
+
+  const restaurant = db.restaurants.find(
+    item =>
+      item.email ===
+      String(email).trim().toLowerCase()
+  );
+
+  if (!restaurant) {
+    return res.status(404).json({
+      status: "error",
+      message: "Restaurant not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    message: "Restaurant login successful",
+    restaurant
+  });
+});
+
+// ALL RESTAURANTS
 app.get("/api/restaurants", (req, res) => {
   res.json({
     status: "success",
+    count: db.restaurants.length,
     restaurants: db.restaurants
   });
 });
 
-// ==================================================
-// GET SINGLE RESTAURANT
-// ==================================================
-
+// SINGLE RESTAURANT
 app.get("/api/restaurants/:id", (req, res) => {
-  const restaurant = db.restaurants.find(
-    restaurant => restaurant.id === req.params.id
-  );
+  const restaurant =
+    getRestaurant(req.params.id);
 
   if (!restaurant) {
     return res.status(404).json({
@@ -588,14 +438,10 @@ app.get("/api/restaurants/:id", (req, res) => {
   });
 });
 
-// ==================================================
 // UPDATE RESTAURANT
-// ==================================================
-
 app.put("/api/restaurants/:id", (req, res) => {
-  const restaurant = db.restaurants.find(
-    restaurant => restaurant.id === req.params.id
-  );
+  const restaurant =
+    getRestaurant(req.params.id);
 
   if (!restaurant) {
     return res.status(404).json({
@@ -631,58 +477,17 @@ app.put("/api/restaurants/:id", (req, res) => {
 
   res.json({
     status: "success",
-    message: "Restaurant updated successfully",
+    message: "Restaurant updated",
     restaurant
   });
 });
 
-// ==================================================
-// RESTAURANT OPEN / CLOSE
-// ==================================================
-
-app.put("/api/restaurants/:id/status", (req, res) => {
-  const restaurant = db.restaurants.find(
-    restaurant => restaurant.id === req.params.id
-  );
-
-  if (!restaurant) {
-    return res.status(404).json({
-      status: "error",
-      message: "Restaurant not found"
-    });
-  }
-
-  const { isOpen } = req.body;
-
-  if (typeof isOpen !== "boolean") {
-    return res.status(400).json({
-      status: "error",
-      message: "isOpen must be true or false"
-    });
-  }
-
-  restaurant.isOpen = isOpen;
-  restaurant.updatedAt = now();
-
-  res.json({
-    status: "success",
-    message: isOpen
-      ? "Restaurant is now open"
-      : "Restaurant is now closed",
-    restaurant
-  });
-});
-
-// ==================================================
-// MENU MODULE
-// ==================================================
-
-// ADD MENU ITEM
-app.post("/api/restaurants/:restaurantId/menu", (req, res) => {
-  try {
-    const restaurant = db.restaurants.find(
-      restaurant => restaurant.id === req.params.restaurantId
-    );
+// OPEN / CLOSE RESTAURANT
+app.put(
+  "/api/restaurants/:id/status",
+  (req, res) => {
+    const restaurant =
+      getRestaurant(req.params.id);
 
     if (!restaurant) {
       return res.status(404).json({
@@ -691,82 +496,227 @@ app.post("/api/restaurants/:restaurantId/menu", (req, res) => {
       });
     }
 
-    const {
-      name,
-      description,
-      price,
-      category,
-      image
-    } = req.body;
+    const { isOpen } = req.body;
 
-    if (!name || price === undefined) {
+    if (typeof isOpen !== "boolean") {
       return res.status(400).json({
         status: "error",
-        message: "Menu name and price are required"
+        message: "isOpen must be true or false"
       });
     }
 
-    const menuItem = {
-      id: id("MENU"),
-      restaurantId: restaurant.id,
-      name: String(name).trim(),
-      description: description || "",
-      price: Number(price),
-      category: category || "Other",
-      image: image || "",
-      available: true,
-      createdAt: now(),
-      updatedAt: now()
-    };
+    restaurant.isOpen = isOpen;
+    restaurant.updatedAt = now();
 
-    db.menuItems.push(menuItem);
-
-    res.status(201).json({
+    res.json({
       status: "success",
-      message: "Menu item added successfully",
-      menuItem
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: "Menu item creation failed"
+      message: isOpen
+        ? "Restaurant is now open"
+        : "Restaurant is now closed",
+      restaurant
     });
   }
-});
+);
+
+// APPROVE RESTAURANT
+app.patch(
+  "/api/restaurants/:id/approve",
+  (req, res) => {
+    const restaurant =
+      getRestaurant(req.params.id);
+
+    if (!restaurant) {
+      return res.status(404).json({
+        status: "error",
+        message: "Restaurant not found"
+      });
+    }
+
+    restaurant.status = "approved";
+    restaurant.updatedAt = now();
+
+    res.json({
+      status: "success",
+      message: "Restaurant approved",
+      restaurant
+    });
+  }
+);
 
 // ==================================================
-// GET RESTAURANT MENU
+// MENU MODULE
 // ==================================================
 
-app.get("/api/restaurants/:restaurantId/menu", (req, res) => {
-  const restaurant = db.restaurants.find(
-    restaurant => restaurant.id === req.params.restaurantId
+// ADD MENU ITEM
+app.post(
+  "/api/restaurants/:restaurantId/menu",
+  (req, res) => {
+    try {
+      const restaurant =
+        getRestaurant(req.params.restaurantId);
+
+      if (!restaurant) {
+        return res.status(404).json({
+          status: "error",
+          message: "Restaurant not found"
+        });
+      }
+
+      const {
+        name,
+        description,
+        price,
+        category,
+        image
+      } = req.body;
+
+      if (!name || price === undefined) {
+        return res.status(400).json({
+          status: "error",
+          message:
+            "Menu name and price are required"
+        });
+      }
+
+      const menuItem = {
+        id: createId("MENU"),
+        restaurantId: restaurant.id,
+        name: String(name).trim(),
+        description: description || "",
+        price: Number(price),
+        category: category || "Other",
+        image: image || "",
+        available: true,
+        createdAt: now(),
+        updatedAt: now()
+      };
+
+      db.menuItems.push(menuItem);
+
+      res.status(201).json({
+        status: "success",
+        message:
+          "Menu item added successfully",
+        menuItem
+      });
+
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Menu item creation failed"
+      });
+    }
+  }
+);
+
+// GET MENU
+app.get(
+  "/api/restaurants/:restaurantId/menu",
+  (req, res) => {
+    const restaurant =
+      getRestaurant(req.params.restaurantId);
+
+    if (!restaurant) {
+      return res.status(404).json({
+        status: "error",
+        message: "Restaurant not found"
+      });
+    }
+
+    const menu = db.menuItems.filter(
+      item =>
+        item.restaurantId === restaurant.id
+    );
+
+    res.json({
+      status: "success",
+      restaurantId: restaurant.id,
+      menu
+    });
+  }
+);
+
+// UPDATE MENU ITEM
+app.put("/api/menu/:id", (req, res) => {
+  const item = db.menuItems.find(
+    menu => menu.id === req.params.id
   );
 
-  if (!restaurant) {
+  if (!item) {
     return res.status(404).json({
       status: "error",
-      message: "Restaurant not found"
+      message: "Menu item not found"
     });
   }
 
-  const menu = db.menuItems.filter(
-    item => item.restaurantId === restaurant.id
-  );
+  const {
+    name,
+    description,
+    price,
+    category,
+    image,
+    available
+  } = req.body;
+
+  if (name !== undefined) {
+    item.name = String(name).trim();
+  }
+
+  if (description !== undefined) {
+    item.description = description;
+  }
+
+  if (price !== undefined) {
+    item.price = Number(price);
+  }
+
+  if (category !== undefined) {
+    item.category = category;
+  }
+
+  if (image !== undefined) {
+    item.image = image;
+  }
+
+  if (available !== undefined) {
+    item.available = Boolean(available);
+  }
+
+  item.updatedAt = now();
 
   res.json({
     status: "success",
-    restaurantId: restaurant.id,
-    menu
+    message: "Menu item updated",
+    menuItem: item
   });
-});// ==================================================
+});
+
+// DELETE MENU ITEM
+app.delete("/api/menu/:id", (req, res) => {
+  const index = db.menuItems.findIndex(
+    item => item.id === req.params.id
+  );
+
+  if (index === -1) {
+    return res.status(404).json({
+      status: "error",
+      message: "Menu item not found"
+    });
+  }
+
+  const deleted =
+    db.menuItems.splice(index, 1)[0];
+
+  res.json({
+    status: "success",
+    message: "Menu item deleted",
+    menuItem: deleted
+  });
+});
+
+// ==================================================
 // ORDER MODULE
 // ==================================================
-
-function getOrderById(orderId) {
-  return db.orders.find(order => order.id === orderId);
-}
 
 // CREATE ORDER
 app.post("/api/orders", (req, res) => {
@@ -793,72 +743,127 @@ app.post("/api/orders", (req, res) => {
       });
     }
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    if (
+      !Array.isArray(items) ||
+      items.length === 0
+    ) {
       return res.status(400).json({
         status: "error",
         message: "Order items are required"
       });
     }
 
-    if (!deliveryAddress) {
+    const customer =
+      getCustomer(customerId);
+
+    if (!customer) {
+      return res.status(404).json({
+        status: "error",
+        message: "Customer not found"
+      });
+    }
+
+    const restaurant =
+      getRestaurant(restaurantId);
+
+    if (!restaurant) {
+      return res.status(404).json({
+        status: "error",
+        message: "Restaurant not found"
+      });
+    }
+
+    const address =
+      deliveryAddress ||
+      customer.address ||
+      "";
+
+    if (!address) {
       return res.status(400).json({
         status: "error",
-        message: "deliveryAddress is required"
+        message: "Delivery address is required"
       });
     }
 
     let subtotal = 0;
 
     const orderItems = items.map(item => {
-      const quantity = Number(item.quantity) || 1;
-      const price = Number(item.price) || 0;
-      const itemTotal = price * quantity;
+      const quantity =
+        Number(item.quantity) || 1;
+
+      let price =
+        Number(item.price) || 0;
+
+      const menuItemId =
+        item.menuItemId || null;
+
+      if (menuItemId) {
+        const menuItem =
+          db.menuItems.find(
+            menu => menu.id === menuItemId
+          );
+
+        if (menuItem) {
+          price = Number(menuItem.price);
+        }
+      }
+
+      const itemTotal =
+        price * quantity;
 
       subtotal += itemTotal;
 
       return {
-        menuItemId: item.menuItemId || null,
+        menuItemId,
         name: item.name || "Food Item",
-        price: price,
-        quantity: quantity,
+        price,
+        quantity,
         total: itemTotal
       };
     });
 
     const deliveryFee = 300;
-    const serviceFee = Math.round(subtotal * 0.05);
-    const total = subtotal + deliveryFee + serviceFee;
+    const serviceFee =
+      Math.round(subtotal * 0.05);
+
+    const total =
+      subtotal +
+      deliveryFee +
+      serviceFee;
 
     const order = {
-      id: createId("order"),
+      id: createId("ORD"),
       customerId,
       restaurantId,
+      riderId: null,
       items: orderItems,
       subtotal,
       deliveryFee,
       serviceFee,
       total,
-      paymentMethod: paymentMethod || "COD",
-      paymentStatus:
-        paymentMethod === "COD" ? "pending" : "pending",
+      commission: commission(total),
+      restaurantPayout:
+        total - commission(total),
+      paymentMethod:
+        paymentMethod || "COD",
+      paymentStatus: "pending",
       orderStatus: "placed",
-      deliveryAddress,
-      riderId: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      deliveryAddress: address,
+      createdAt: now(),
+      updatedAt: now()
     };
 
     db.orders.push(order);
 
-    db.notifications.push({
-      id: createId("notification"),
-      userId: customerId,
-      type: "order",
-      message: "Your order has been placed successfully.",
-      orderId: order.id,
-      createdAt: new Date().toISOString(),
-      read: false
-    });
+    restaurant.totalOrders =
+      Number(restaurant.totalOrders || 0) + 1;
+
+    addNotification(
+      customerId,
+      "order",
+      "Your order has been placed successfully.",
+      order.id
+    );
 
     res.status(201).json({
       status: "success",
@@ -875,11 +880,7 @@ app.post("/api/orders", (req, res) => {
   }
 });
 
-
-// ==================================================
-// GET ALL ORDERS
-// ==================================================
-
+// ALL ORDERS
 app.get("/api/orders", (req, res) => {
   res.json({
     status: "success",
@@ -888,13 +889,10 @@ app.get("/api/orders", (req, res) => {
   });
 });
 
-
-// ==================================================
-// GET SINGLE ORDER
-// ==================================================
-
+// SINGLE ORDER
 app.get("/api/orders/:orderId", (req, res) => {
-  const order = getOrderById(req.params.orderId);
+  const order =
+    getOrder(req.params.orderId);
 
   if (!order) {
     return res.status(404).json({
@@ -909,189 +907,179 @@ app.get("/api/orders/:orderId", (req, res) => {
   });
 });
 
-
-// ==================================================
-// UPDATE ORDER STATUS
-// ==================================================
-
-app.patch("/api/orders/:orderId/status", (req, res) => {
-  const order = getOrderById(req.params.orderId);
-
-  if (!order) {
-    return res.status(404).json({
-      status: "error",
-      message: "Order not found"
-    });
-  }
-
-  const { status } = req.body;
-
-  const allowedStatuses = [
-    "placed",
-    "confirmed",
-    "preparing",
-    "ready",
-    "picked_up",
-    "on_the_way",
-    "delivered",
-    "cancelled"
-  ];
-
-  if (!allowedStatuses.includes(status)) {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid order status",
-      allowedStatuses
-    });
-  }
-
-  order.orderStatus = status;
-  order.updatedAt = new Date().toISOString();
-
-  db.notifications.push({
-    id: createId("notification"),
-    userId: order.customerId,
-    type: "order_status",
-    message: "Order status updated to " + status,
-    orderId: order.id,
-    createdAt: new Date().toISOString(),
-    read: false
-  });
-
-  res.json({
-    status: "success",
-    message: "Order status updated",
-    order
-  });
-});
-
-
-// ==================================================
-// CANCEL ORDER
-// ==================================================
-
-app.patch("/api/orders/:orderId/cancel", (req, res) => {
-  const order = getOrderById(req.params.orderId);
-
-  if (!order) {
-    return res.status(404).json({
-      status: "error",
-      message: "Order not found"
-    });
-  }
-
-  if (
-    ["picked_up", "on_the_way", "delivered"].includes(
-      order.orderStatus
-    )
-  ) {
-    return res.status(400).json({
-      status: "error",
-      message: "Order cannot be cancelled at this stage"
-    });
-  }
-
-  order.orderStatus = "cancelled";
-  order.updatedAt = new Date().toISOString();
-
-  res.json({
-    status: "success",
-    message: "Order cancelled successfully",
-    order
-  });
-});
-
-
-// ==================================================
 // CUSTOMER ORDERS
-// ==================================================
+app.get(
+  "/api/customers/:customerId/orders",
+  (req, res) => {
+    const orders = db.orders.filter(
+      order =>
+        order.customerId ===
+        req.params.customerId
+    );
 
-app.get("/api/customers/:customerId/orders", (req, res) => {
-  const orders = db.orders.filter(
-    order => order.customerId === req.params.customerId
-  );
+    res.json({
+      status: "success",
+      count: orders.length,
+      orders
+    });
+  }
+);
 
-  res.json({
-    status: "success",
-    count: orders.length,
-    orders
-  });
-});
-
-
-// ==================================================
 // RESTAURANT ORDERS
-// ==================================================
+app.get(
+  "/api/restaurants/:restaurantId/orders",
+  (req, res) => {
+    const orders = db.orders.filter(
+      order =>
+        order.restaurantId ===
+        req.params.restaurantId
+    );
 
-app.get("/api/restaurants/:restaurantId/orders", (req, res) => {
-  const orders = db.orders.filter(
-    order => order.restaurantId === req.params.restaurantId
-  );
-
-  res.json({
-    status: "success",
-    count: orders.length,
-    orders
-  });
-});
-
-
-// ==================================================
-// RIDER ORDERS
-// ==================================================
-
-app.get("/api/riders/:riderId/orders", (req, res) => {
-  const orders = db.orders.filter(
-    order => order.riderId === req.params.riderId
-  );
-
-  res.json({
-    status: "success",
-    count: orders.length,
-    orders
-  });
-});
-
-
-// ==================================================
-// ASSIGN RIDER TO ORDER
-// ==================================================
-
-app.patch("/api/orders/:orderId/assign-rider", (req, res) => {
-  const order = getOrderById(req.params.orderId);
-
-  if (!order) {
-    return res.status(404).json({
-      status: "error",
-      message: "Order not found"
+    res.json({
+      status: "success",
+      count: orders.length,
+      orders
     });
   }
+);
 
-  const { riderId } = req.body;
+// UPDATE ORDER STATUS
+app.patch(
+  "/api/orders/:orderId/status",
+  (req, res) => {
+    const order =
+      getOrder(req.params.orderId);
 
-  if (!riderId) {
-    return res.status(400).json({
-      status: "error",
-      message: "riderId is required"
+    if (!order) {
+      return res.status(404).json({
+        status: "error",
+        message: "Order not found"
+      });
+    }
+
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "placed",
+      "confirmed",
+      "preparing",
+      "ready",
+      "picked_up",
+      "on_the_way",
+      "delivered",
+      "cancelled"
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid order status",
+        allowedStatuses
+      });
+    }
+
+    order.orderStatus = status;
+    order.updatedAt = now();
+
+    if (status === "delivered") {
+      order.paymentStatus =
+        order.paymentMethod === "COD"
+          ? "paid"
+          : order.paymentStatus;
+    }
+
+    addNotification(
+      order.customerId,
+      "order_status",
+      "Order status updated to " + status,
+      order.id
+    );
+
+    res.json({
+      status: "success",
+      message: "Order status updated",
+      order
     });
   }
+);
 
-  order.riderId = riderId;
-  order.updatedAt = new Date().toISOString();
+// CANCEL ORDER
+app.patch(
+  "/api/orders/:orderId/cancel",
+  (req, res) => {
+    const order =
+      getOrder(req.params.orderId);
 
-  db.notifications.push({
-    id: createId("notification"),
-    userId: order.customerId,
-    type: "rider_assigned",
-    message: "A delivery rider has been assigned to your order.",
-    orderId: order.id,
-    createdAt: new Date().toISOString(),
-    read: false
-  });
+    if (!order) {
+      return res.status(404).json({
+        status: "error",
+        message: "Order not found"
+      });
+    }
 
-  res.json({
-    status: "success",
-    message: "Rider assigned successfully",
-    order
-  });
-});
+    if (
+      [
+        "picked_up",
+        "on_the_way",
+        "delivered",
+        "cancelled"
+      ].includes(order.orderStatus)
+    ) {
+      return res.status(400).json({
+        status: "error",
+        message:
+          "Order cannot be cancelled at this stage"
+      });
+    }
+
+    order.orderStatus = "cancelled";
+    order.updatedAt = now();
+
+    addNotification(
+      order.customerId,
+      "order_cancelled",
+      "Your order has been cancelled.",
+      order.id
+    );
+
+    res.json({
+      status: "success",
+      message: "Order cancelled successfully",
+      order
+    });
+  }
+);
+
+// ==================================================
+// RIDER MODULE
+// ==================================================
+
+// RIDER REGISTER
+app.post("/api/riders/register", (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      phone,
+      vehicleType,
+      vehicleNumber
+    } = req.body;
+
+    if (!name || !email || !phone) {
+      return res.status(400).json({
+        status: "error",
+        message:
+          "Name, email and phone are required"
+      });
+    }
+
+    const cleanEmail =
+      String(email).trim().toLowerCase();
+
+    const existing =
+      db.riders.find(
+        rider => rider.email === cleanEmail
+      );
+
+    if (existing) {
+      return

@@ -11,7 +11,7 @@ app.use(express.json());
 // ==================================================
 // OCEAN DELIVERY PLATFORM
 // BIG BUILD BACKEND
-// PART 1 / FOUNDATION + DATABASE
+// CUSTOMER + ORDER + RESTAURANT + RIDER + PAYMENT
 // ==================================================
 
 const db = {
@@ -20,9 +20,9 @@ const db = {
   menuItems: [],
   orders: [],
   riders: [],
+  payments: [],
   payouts: [],
   refunds: [],
-  payments: [],
   notifications: []
 };
 
@@ -31,11 +31,11 @@ const db = {
 // ==================================================
 
 function createId(prefix) {
-  return (
-    prefix +
-    "_" +
-    crypto.randomBytes(8).toString("hex")
-  );
+  return prefix + "_" + crypto.randomBytes(8).toString("hex");
+}
+
+function id(prefix) {
+  return createId(prefix);
 }
 
 function now() {
@@ -43,9 +43,7 @@ function now() {
 }
 
 function commission(amount) {
-  return Math.round(
-    Number(amount || 0) * 0.15 * 100
-  ) / 100;
+  return Math.round(Number(amount || 0) * 0.15 * 100) / 100;
 }
 
 function safeUser(user) {
@@ -57,6 +55,7 @@ function safeUser(user) {
     email: user.email,
     phone: user.phone || null,
     role: user.role,
+    address: user.address || "",
     createdAt: user.createdAt
   };
 }
@@ -97,133 +96,16 @@ app.get("/api/status", (req, res) => {
       orders: db.orders.length,
       riders: db.riders.length,
       payments: db.payments.length,
-      refunds: db.refunds.length
+      refunds: db.refunds.length,
+      payouts: db.payouts.length,
+      notifications: db.notifications.length
     },
     time: now()
   });
 });
 
 // ==================================================
-// CUSTOMER AUTH - REGISTER
-// ==================================================
-
-app.post("/api/auth/register", (req, res) => {
-  const {
-    name,
-    email,
-    phone,
-    password
-  } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({
-      status: "error",
-      message: "Name, email and password are required"
-    });
-  }
-
-  const cleanEmail = String(email)
-    .trim()
-    .toLowerCase();
-
-  const exists = db.users.find(
-    user => user.email === cleanEmail
-  );
-
-  if (exists) {
-    return res.status(409).json({
-      status: "error",
-      message: "Email already registered"
-    });
-  }
-
-  const user = {
-    id: createId("user"),
-    name: String(name).trim(),
-    email: cleanEmail,
-    phone: phone || null,
-    password: String(password),
-    role: "customer",
-    createdAt: now()
-  };
-
-  db.users.push(user);
-
-  res.status(201).json({
-    status: "success",
-    message: "Customer registered successfully",
-    user: safeUser(user)
-  });
-});
-
-// ==================================================
-// CUSTOMER AUTH - LOGIN
-// ==================================================
-
-app.post("/api/auth/login", (req, res) => {
-  const {
-    email,
-    password
-  } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({
-      status: "error",
-      message: "Email and password are required"
-    });
-  }
-
-  const user = db.users.find(
-    item =>
-      item.email ===
-        String(email).trim().toLowerCase() &&
-      item.password === String(password)
-  );
-
-  if (!user) {
-    return res.status(401).json({
-      status: "error",
-      message: "Invalid email or password"
-    });
-  }
-
-  res.json({
-    status: "success",
-    message: "Login successful",
-    user: safeUser(user)
-  });
-});
-
-// ==================================================
-// USER PROFILE
-// ==================================================
-
-app.get("/api/users/:id", (req, res) => {
-  const user = db.users.find(
-    item => item.id === req.params.id
-  );
-
-  if (!user) {
-    return res.status(404).json({
-      status: "error",
-      message: "User not found"
-    });
-  }
-
-  res.json({
-    status: "success",
-    user: safeUser(user)
-  });
-});
-
-// ==================================================
-// END OF PART 1
-// ==================================================
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`OCEAN backend running on port ${PORT}`);
-});
-// ==================================================
-// CUSTOMER MODULE - PART 1
+// CUSTOMER MODULE
 // ==================================================
 
 // CUSTOMER REGISTER
@@ -238,8 +120,10 @@ app.post("/api/customers/register", (req, res) => {
       });
     }
 
+    const cleanEmail = String(email).trim().toLowerCase();
+
     const existingUser = db.users.find(
-      user => user.email.toLowerCase() === email.toLowerCase()
+      user => user.email === cleanEmail
     );
 
     if (existingUser) {
@@ -251,10 +135,10 @@ app.post("/api/customers/register", (req, res) => {
 
     const customer = {
       id: id("CUS"),
-      name,
-      email: email.toLowerCase(),
-      phone,
-      password,
+      name: String(name).trim(),
+      email: cleanEmail,
+      phone: String(phone).trim(),
+      password: String(password),
       role: "customer",
       address: address || "",
       createdAt: now(),
@@ -266,14 +150,7 @@ app.post("/api/customers/register", (req, res) => {
     res.status(201).json({
       status: "success",
       message: "Customer registered successfully",
-      customer: {
-        id: customer.id,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
-        role: customer.role,
-        address: customer.address
-      }
+      customer: safeUser(customer)
     });
 
   } catch (error) {
@@ -283,7 +160,6 @@ app.post("/api/customers/register", (req, res) => {
     });
   }
 });
-
 
 // CUSTOMER LOGIN
 app.post("/api/customers/login", (req, res) => {
@@ -297,13 +173,15 @@ app.post("/api/customers/login", (req, res) => {
       });
     }
 
+    const cleanEmail = String(email).trim().toLowerCase();
+
     const customer = db.users.find(
       user =>
-        user.email.toLowerCase() === email.toLowerCase() &&
+        user.email === cleanEmail &&
         user.role === "customer"
     );
 
-    if (!customer || customer.password !== password) {
+    if (!customer || customer.password !== String(password)) {
       return res.status(401).json({
         status: "error",
         message: "Invalid email or password"
@@ -313,14 +191,7 @@ app.post("/api/customers/login", (req, res) => {
     res.json({
       status: "success",
       message: "Customer login successful",
-      customer: {
-        id: customer.id,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
-        role: customer.role,
-        address: customer.address
-      }
+      customer: safeUser(customer)
     });
 
   } catch (error) {
@@ -330,7 +201,6 @@ app.post("/api/customers/login", (req, res) => {
     });
   }
 });
-
 
 // GET CUSTOMER PROFILE
 app.get("/api/customers/:id", (req, res) => {
@@ -349,19 +219,9 @@ app.get("/api/customers/:id", (req, res) => {
 
   res.json({
     status: "success",
-    customer: {
-      id: customer.id,
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      role: customer.role,
-      address: customer.address,
-      createdAt: customer.createdAt,
-      updatedAt: customer.updatedAt
-    }
+    customer: safeUser(customer)
   });
 });
-
 
 // UPDATE CUSTOMER PROFILE
 app.put("/api/customers/:id", (req, res) => {
@@ -380,30 +240,27 @@ app.put("/api/customers/:id", (req, res) => {
 
   const { name, phone, address } = req.body;
 
-  if (name) customer.name = name;
-  if (phone) customer.phone = phone;
-  if (address !== undefined) customer.address = address;
+  if (name) customer.name = String(name).trim();
+  if (phone) customer.phone = String(phone).trim();
+
+  if (address !== undefined) {
+    customer.address = address;
+  }
 
   customer.updatedAt = now();
 
   res.json({
     status: "success",
     message: "Customer profile updated",
-    customer: {
-      id: customer.id,
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      role: customer.role,
-      address: customer.address,
-      updatedAt: customer.updatedAt
-    }
+    customer: safeUser(customer)
   });
 });
+
 // ==================================================
-// ORDER MODULE - PART 1
+// ORDER MODULE
 // ==================================================
 
+// CREATE ORDER
 app.post("/api/orders", (req, res) => {
   try {
     const {
@@ -411,13 +268,46 @@ app.post("/api/orders", (req, res) => {
       restaurantId,
       items,
       total,
+      deliveryAddress,
       paymentMethod = "COD"
     } = req.body;
 
-    if (!customerId || !restaurantId || !items || !total) {
+    if (
+      !customerId ||
+      !restaurantId ||
+      !items ||
+      !Array.isArray(items) ||
+      items.length === 0 ||
+      total === undefined
+    ) {
       return res.status(400).json({
         status: "error",
-        message: "customerId, restaurantId, items and total are required"
+        message:
+          "customerId, restaurantId, items and total are required"
+      });
+    }
+
+    const customer = db.users.find(
+      user =>
+        user.id === customerId &&
+        user.role === "customer"
+    );
+
+    if (!customer) {
+      return res.status(404).json({
+        status: "error",
+        message: "Customer not found"
+      });
+    }
+
+    const restaurant = db.restaurants.find(
+      restaurant => restaurant.id === restaurantId
+    );
+
+    if (!restaurant) {
+      return res.status(404).json({
+        status: "error",
+        message: "Restaurant not found"
       });
     }
 
@@ -425,9 +315,14 @@ app.post("/api/orders", (req, res) => {
       id: id("ORD"),
       customerId,
       restaurantId,
+      riderId: null,
       items,
-      total,
+      total: Number(total),
+      deliveryAddress:
+        deliveryAddress || customer.address || "",
       paymentMethod,
+      paymentStatus:
+        paymentMethod === "COD" ? "pending" : "pending",
       status: "pending",
       createdAt: now(),
       updatedAt: now()
@@ -435,149 +330,7 @@ app.post("/api/orders", (req, res) => {
 
     db.orders.push(order);
 
-    res.status(201).json({
-      status: "success",
-      message: "Order created successfully",
-      order
-    });
+    restaurant.totalOrders =
+      Number(restaurant.totalOrders || 0) + 1;
 
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message
-    });
-  }
-});
-
-
-// GET ALL ORDERS
-app.get("/api/orders", (req, res) => {
-  res.json({
-    status: "success",
-    count: db.orders.length,
-    orders: db.orders
-  });
-});
-
-
-// GET SINGLE ORDER
-app.get("/api/orders/:orderId", (req, res) => {
-  const order = db.orders.find(
-    o => o.id === req.params.orderId
-  );
-
-  if (!order) {
-    return res.status(404).json({
-      status: "error",
-      message: "Order not found"
-    });
-  }
-
-  res.json({
-    status: "success",
-    order
-  });
-});
-// ==================================================
-// RESTAURANT MODULE
-// PART 1 — REGISTER + LIST + DETAILS
-// ==================================================
-
-// Register Restaurant
-app.post("/api/restaurants", (req, res) => {
-  const {
-    name,
-    ownerName,
-    phone,
-    address,
-    email
-  } = req.body;
-
-  if (!name || !ownerName || !phone || !address) {
-    return res.status(400).json({
-      status: "error",
-      message: "name, ownerName, phone and address are required"
-    });
-  }
-
-  const restaurant = {
-    id: id("rest"),
-    name,
-    ownerName,
-    phone,
-    email: email || "",
-    address,
-    status: "pending",
-    isOpen: false,
-    rating: 0,
-    totalOrders: 0,
-    createdAt: now()
-  };
-
-  db.restaurants.push(restaurant);
-
-  res.status(201).json({
-    status: "success",
-    message: "Restaurant registered successfully",
-    restaurant
-  });
-});
-
-
-// Get All Restaurants
-app.get("/api/restaurants", (req, res) => {
-  res.json({
-    status: "success",
-    count: db.restaurants.length,
-    restaurants: db.restaurants
-  });
-});
-
-
-// Get Single Restaurant
-app.get("/api/restaurants/:id", (req, res) => {
-  const restaurant = db.restaurants.find(
-    r => r.id === req.params.id
-  );
-
-  if (!restaurant) {
-    return res.status(404).json({
-      status: "error",
-      message: "Restaurant not found"
-    });
-  }
-
-  res.json({
-    status: "success",
-    restaurant
-  });
-});
-
-
-// Update Restaurant Status
-app.patch("/api/restaurants/:id/status", (req, res) => {
-  const restaurant = db.restaurants.find(
-    r => r.id === req.params.id
-  );
-
-  if (!restaurant) {
-    return res.status(404).json({
-      status: "error",
-      message: "Restaurant not found"
-    });
-  }
-
-  if (req.body.status) {
-    restaurant.status = req.body.status;
-  }
-
-  if (typeof req.body.isOpen === "boolean") {
-    restaurant.isOpen = req.body.isOpen;
-  }
-
-  res.json({
-    status: "success",
-    message: "Restaurant status updated",
-    restaurant
-  });
-});
+    res.status(201

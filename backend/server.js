@@ -400,3 +400,81 @@ app.put("/api/customers/:id", (req, res) => {
     }
   });
 });
+// ==================================================
+// ORDER MODULE - PART 1
+// ==================================================
+
+app.post("/api/orders", (req, res) => {
+  try {
+    const {
+      customerId,
+      restaurantId,
+      items,
+      total,
+      paymentMethod = "COD"
+    } = req.body;
+
+    if (!customerId || !restaurantId || !items || !total) {
+      return res.status(400).json({
+        status: "error",
+        message: "customerId, restaurantId, items and total are required"
+      });
+    }
+
+    const order = {
+      id: id("ORD"),
+      customerId,
+      restaurantId,
+      items,
+      total,
+      paymentMethod,
+      status: "pending",
+      createdAt: now(),
+      updatedAt: now()
+    };
+
+    db.orders.push(order);
+
+    res.status(201).json({
+      status: "success",
+      message: "Order created successfully",
+      order
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
+});
+
+
+// GET ALL ORDERS
+app.get("/api/orders", (req, res) => {
+  res.json({
+    status: "success",
+    count: db.orders.length,
+    orders: db.orders
+  });
+});
+
+
+// GET SINGLE ORDER
+app.get("/api/orders/:orderId", (req, res) => {
+  const order = db.orders.find(
+    o => o.id === req.params.orderId
+  );
+
+  if (!order) {
+    return res.status(404).json({
+      status: "error",
+      message: "Order not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    order
+  });
+});

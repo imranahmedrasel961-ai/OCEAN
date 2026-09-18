@@ -219,3 +219,6 @@ app.get("/api/users/:id", (req, res) => {
 // ==================================================
 // END OF PART 1
 // ==================================================
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`OCEAN backend running on port ${PORT}`);
+});

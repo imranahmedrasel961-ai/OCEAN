@@ -222,3 +222,181 @@ app.get("/api/users/:id", (req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`OCEAN backend running on port ${PORT}`);
 });
+// ==================================================
+// CUSTOMER MODULE - PART 1
+// ==================================================
+
+// CUSTOMER REGISTER
+app.post("/api/customers/register", (req, res) => {
+  try {
+    const { name, email, phone, password, address } = req.body;
+
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({
+        status: "error",
+        message: "Name, email, phone and password are required"
+      });
+    }
+
+    const existingUser = db.users.find(
+      user => user.email.toLowerCase() === email.toLowerCase()
+    );
+
+    if (existingUser) {
+      return res.status(409).json({
+        status: "error",
+        message: "Email already registered"
+      });
+    }
+
+    const customer = {
+      id: id("CUS"),
+      name,
+      email: email.toLowerCase(),
+      phone,
+      password,
+      role: "customer",
+      address: address || "",
+      createdAt: now(),
+      updatedAt: now()
+    };
+
+    db.users.push(customer);
+
+    res.status(201).json({
+      status: "success",
+      message: "Customer registered successfully",
+      customer: {
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        role: customer.role,
+        address: customer.address
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Customer registration failed"
+    });
+  }
+});
+
+
+// CUSTOMER LOGIN
+app.post("/api/customers/login", (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        status: "error",
+        message: "Email and password are required"
+      });
+    }
+
+    const customer = db.users.find(
+      user =>
+        user.email.toLowerCase() === email.toLowerCase() &&
+        user.role === "customer"
+    );
+
+    if (!customer || customer.password !== password) {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid email or password"
+      });
+    }
+
+    res.json({
+      status: "success",
+      message: "Customer login successful",
+      customer: {
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        role: customer.role,
+        address: customer.address
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Customer login failed"
+    });
+  }
+});
+
+
+// GET CUSTOMER PROFILE
+app.get("/api/customers/:id", (req, res) => {
+  const customer = db.users.find(
+    user =>
+      user.id === req.params.id &&
+      user.role === "customer"
+  );
+
+  if (!customer) {
+    return res.status(404).json({
+      status: "error",
+      message: "Customer not found"
+    });
+  }
+
+  res.json({
+    status: "success",
+    customer: {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      role: customer.role,
+      address: customer.address,
+      createdAt: customer.createdAt,
+      updatedAt: customer.updatedAt
+    }
+  });
+});
+
+
+// UPDATE CUSTOMER PROFILE
+app.put("/api/customers/:id", (req, res) => {
+  const customer = db.users.find(
+    user =>
+      user.id === req.params.id &&
+      user.role === "customer"
+  );
+
+  if (!customer) {
+    return res.status(404).json({
+      status: "error",
+      message: "Customer not found"
+    });
+  }
+
+  const { name, phone, address } = req.body;
+
+  if (name) customer.name = name;
+  if (phone) customer.phone = phone;
+  if (address !== undefined) customer.address = address;
+
+  customer.updatedAt = now();
+
+  res.json({
+    status: "success",
+    message: "Customer profile updated",
+    customer: {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      role: customer.role,
+      address: customer.address,
+      updatedAt: customer.updatedAt
+    }
+  });
+});
